@@ -3,7 +3,7 @@
     {
       "id": "77b1023dbdc54740a8d54be885bcd924",
       "username": "admin",
-      "passwordHash": "$2a$10$3eSHR8v0vRXSz4vYAFBWpekR0lsJRZnUYWFIhXDK25vT/ipN7UJOe",
+      "passwordHash": "$2a$10$2wjOW8cL6lw5cViI1O3dnuhpNFFtb1i6aU9aBTLHqBsOUvTSW0Mqi",
       "role": "admin",
       "createdAt": 1776915422496
     }
@@ -60,5 +60,15 @@
       "createdAt": 1776928629461
     }
   ],
-  "attachments": []
+  "attachments": [
+    {
+      "id": "6889f5b502ae4fa48e3e39b91ea043ba",
+      "originalName": "test-upload.js",
+      "storedName": "6889f5b502ae4fa48e3e39b91ea043ba__test-upload.js",
+      "mime": "application/javascript",
+      "size": 886,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1776930786865
+    }
+  ]
 }

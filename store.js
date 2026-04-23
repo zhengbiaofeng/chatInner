@@ -37,13 +37,18 @@ class JsonStore {
    * The function receives the current data, and should return updated data.
    */
   async update(mutatorFn) {
-    this._queue = this._queue.then(async () => {
+    const task = this._queue.then(async () => {
       const data = await this.read();
       const next = await mutatorFn(data);
       await this.write(next);
       return next;
     });
-    return this._queue;
+    
+    // 无论 task 是 resolve 还是 reject，都让 _queue 恢复正常状态，以便下一个请求能继续执行
+    this._queue = task.catch(() => {});
+    
+    // 调用者仍能收到正确的返回值或抛出的异常
+    return task;
   }
 }
 
