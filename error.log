@@ -10,3 +10,9 @@ Error: 不能删除最后一个管理员账号
     at /workspace/store.js:42:26
     at async /workspace/src/routes/api.js:168:5
 
+[2026-04-23T07:27:30.498Z] Express error
+Error: 不能删除最后一个管理员账号
+    at /workspace/src/routes/api.js:174:20
+    at /workspace/store.js:42:26
+    at async /workspace/src/routes/api.js:168:5
+
