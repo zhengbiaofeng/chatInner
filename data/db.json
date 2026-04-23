@@ -89,15 +89,6 @@
   ],
   "attachments": [
     {
-      "id": "6889f5b502ae4fa48e3e39b91ea043ba",
-      "originalName": "test-upload.js",
-      "storedName": "6889f5b502ae4fa48e3e39b91ea043ba__test-upload.js",
-      "mime": "application/javascript",
-      "size": 886,
-      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
-      "createdAt": 1776930786865
-    },
-    {
       "id": "1a8c2f4adf75402383dd08cc4cd9c19a",
       "originalName": "pom.xml",
       "storedName": "1a8c2f4adf75402383dd08cc4cd9c19a__pom.xml",
