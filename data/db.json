@@ -15,7 +15,18 @@
       "createdAt": 1776945186030
     }
   ],
-  "messages": [],
+  "messages": [
+    {
+      "id": "9b2ceca4428d4314b9cf51f15a91a460",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "111",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1776962226055
+    }
+  ],
   "attachments": [
     {
       "id": "1a8c2f4adf75402383dd08cc4cd9c19a",
