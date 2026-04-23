@@ -46,6 +46,7 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; position: 
 
 .right { display: flex; gap: 12px; align-items: center; font-size: 14px; }
 .hidden { display: none !important; }
+.modal.hidden { display: none !important; }
 
 /* Cards & Modals (Glassmorphism) */
 .card, .modal-content {
@@ -63,7 +64,7 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; position: 
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 2000;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,6 +74,7 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; position: 
   width: 400px;
   max-width: 90%;
   margin-top: 0;
+  pointer-events: auto;
 }
 
 .row { display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: center; margin: 14px 0; }
