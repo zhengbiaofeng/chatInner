@@ -18,8 +18,19 @@ function setView(name) {
   $("chatView").classList.toggle("hidden", name !== "chat");
 }
 
+let errorTimeouts = {};
+
 function setError(id, msg) {
-  $(id).textContent = msg || "";
+  const el = $(id);
+  if (!el) return;
+  el.textContent = msg || "";
+  
+  if (msg) {
+    if (errorTimeouts[id]) clearTimeout(errorTimeouts[id]);
+    errorTimeouts[id] = setTimeout(() => {
+      el.textContent = "";
+    }, 4000);
+  }
 }
 
 async function api(path, { method = "GET", body, isForm = false } = {}) {
@@ -486,7 +497,9 @@ async function doDeleteUser(id, username) {
     await api(`/api/admin/users/${id}`, { method: "DELETE" });
     await refreshUsers();
   } catch (e) {
-    alert(`删除失败: ${e.message}`);
+    // 复用通用的 setError 逻辑，将错误显示在输入框下方的 chatError 或者管理面板内的 adminError
+    const errorContainerId = $("adminPanel").classList.contains("hidden") ? "chatError" : "adminError";
+    setError(errorContainerId, `删除失败: ${e.message}`);
   }
 }
 
