@@ -58,6 +58,33 @@
       "sticker": "",
       "attachments": [],
       "createdAt": 1776928629461
+    },
+    {
+      "id": "b097cf4f7d8246c1b72c3e7d8e976130",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "",
+      "sticker": "",
+      "attachments": [
+        {
+          "id": "1a8c2f4adf75402383dd08cc4cd9c19a",
+          "name": "pom.xml",
+          "mime": "text/xml",
+          "size": 1730,
+          "isImage": false,
+          "url": "/file/1a8c2f4adf75402383dd08cc4cd9c19a"
+        },
+        {
+          "id": "de458969dc8240dbb798dc80ada616c7",
+          "name": "屏幕截图 2025-11-26 155517.png",
+          "mime": "image/png",
+          "size": 829201,
+          "isImage": true,
+          "url": "/file/de458969dc8240dbb798dc80ada616c7"
+        }
+      ],
+      "createdAt": 1776931041356
     }
   ],
   "attachments": [
@@ -78,6 +105,15 @@
       "size": 1730,
       "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
       "createdAt": 1776931019491
+    },
+    {
+      "id": "de458969dc8240dbb798dc80ada616c7",
+      "originalName": "屏幕截图 2025-11-26 155517.png",
+      "storedName": "de458969dc8240dbb798dc80ada616c7______ 2025-11-26 155517.png",
+      "mime": "image/png",
+      "size": 829201,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1776931034589
     }
   ]
 }
