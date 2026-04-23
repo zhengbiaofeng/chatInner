@@ -179,6 +179,22 @@ module.exports = function createApiRouter(store, config) {
     res.json({ ok: true });
   }));
 
+  // 管理员一键清空所有聊天记录
+  router.delete("/admin/messages", requireAuth(jwtSecret), requireAdmin, asyncHandler(async (req, res) => {
+    await store.update(async (db) => {
+      db.messages = [];
+      return db;
+    });
+    
+    // 如果 req.app 挂载了 io，可以通知所有客户端清屏
+    const io = req.app.get("io");
+    if (io) {
+      io.to("general").emit("chat:cleared");
+    }
+
+    res.json({ ok: true });
+  }));
+
   // ---- Upload ----
   const upload = multer({
     storage: multer.diskStorage({

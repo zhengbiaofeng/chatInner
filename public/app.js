@@ -441,6 +441,16 @@ function connectSocket() {
     setError("chatError", `连接失败：${err.message || err}`);
   });
   state.socket.on("chat:message", (m) => addMessage(m));
+  state.socket.on("chat:cleared", () => {
+    $("messages").innerHTML = "";
+    const systemMsg = document.createElement("div");
+    systemMsg.style.textAlign = "center";
+    systemMsg.style.padding = "20px";
+    systemMsg.style.color = "#ef4444";
+    systemMsg.style.fontSize = "14px";
+    systemMsg.textContent = "管理员已清空所有聊天记录";
+    $("messages").appendChild(systemMsg);
+  });
 }
 
 async function doUpload(file) {
@@ -642,6 +652,29 @@ function toggleAdminPanel(show) {
 
 $("adminToggleBtn").onclick = () => toggleAdminPanel();
 $("adminCollapseBtn").onclick = () => toggleAdminPanel(false);
+
+if ($("clearChatBtn")) {
+  $("clearChatBtn").onclick = () => {
+    $("clearChatModal").classList.remove("hidden");
+  };
+}
+
+if ($("cancelClearChatBtn")) {
+  $("cancelClearChatBtn").onclick = () => {
+    $("clearChatModal").classList.add("hidden");
+  };
+}
+
+if ($("confirmClearChatBtn")) {
+  $("confirmClearChatBtn").onclick = async () => {
+    try {
+      await api("/api/admin/messages", { method: "DELETE" });
+      $("clearChatModal").classList.add("hidden");
+    } catch (e) {
+      alert("清空失败：" + e.message);
+    }
+  };
+}
 
 // Paste images directly from clipboard into pending uploads
 $("messageInput").addEventListener("paste", async (e) => {

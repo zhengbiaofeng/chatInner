@@ -102,6 +102,8 @@ async function getOrCreateJwtSecret() {
     const server = http.createServer(app);
     const io = new Server(server, { cors: { origin: true, credentials: true } });
 
+    app.set("io", io); // 将 io 挂载到 app 上，以供 api 路由使用
+
     server.requestTimeout = 0;
     server.headersTimeout = 0;
     server.keepAliveTimeout = 0;
