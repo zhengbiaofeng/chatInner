@@ -318,6 +318,7 @@ input::placeholder { color: rgba(255,255,255,0.4); }
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 .pendingItem {
   display: flex; align-items: center; justify-content: space-between;
