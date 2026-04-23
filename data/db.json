@@ -69,6 +69,15 @@
       "size": 886,
       "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
       "createdAt": 1776930786865
+    },
+    {
+      "id": "1a8c2f4adf75402383dd08cc4cd9c19a",
+      "originalName": "pom.xml",
+      "storedName": "1a8c2f4adf75402383dd08cc4cd9c19a__pom.xml",
+      "mime": "text/xml",
+      "size": 1730,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1776931019491
     }
   ]
 }
