@@ -224,17 +224,26 @@ module.exports = function createApiRouter(store, config) {
   }));
 
   router.post("/todos", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
-    const { content } = req.body || {};
+    const { content, assigneeId } = req.body || {};
     if (!content) return res.status(400).json({ error: "内容不能为空" });
     let newTodo;
     await store.update(async (db) => {
       if (!db.todos) db.todos = [];
+      
+      let assigneeName = null;
+      if (assigneeId) {
+        const u = db.users.find(x => x.id === assigneeId);
+        if (u) assigneeName = u.username;
+      }
+
       newTodo = {
         id: genId(),
         content: String(content).trim(),
         completed: false,
         creatorId: req.user.id,
         creatorName: req.user.username,
+        assigneeId: assigneeId || null,
+        assigneeName: assigneeName || null,
         createdAt: Date.now(),
         completedAt: null
       };
@@ -245,13 +254,28 @@ module.exports = function createApiRouter(store, config) {
   }));
 
   router.put("/todos/:id", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
-    const { content, completed } = req.body || {};
+    const { content, completed, assigneeId } = req.body || {};
     await store.update(async (db) => {
       if (!db.todos) db.todos = [];
       const t = db.todos.find(x => x.id === req.params.id);
       if (!t) {
         const e = new Error("任务不存在"); e.statusCode = 404; throw e;
       }
+      
+      // 只有创建人或管理员能修改任务指派
+      if (assigneeId !== undefined && (req.user.role === "admin" || req.user.id === t.creatorId)) {
+        if (assigneeId === null || assigneeId === "") {
+          t.assigneeId = null;
+          t.assigneeName = null;
+        } else {
+          const u = db.users.find(x => x.id === assigneeId);
+          if (u) {
+            t.assigneeId = u.id;
+            t.assigneeName = u.username;
+          }
+        }
+      }
+
       if (content !== undefined) t.content = String(content).trim();
       if (completed !== undefined) {
         t.completed = !!completed;

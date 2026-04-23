@@ -758,9 +758,26 @@ function initEmojiPanel() {
 }
 
 // ==== Todos / Blackboard ====
-$("boardBtn").onclick = async () => {
+$("addTodoBtn").onclick = async () => {
   $("boardModal").classList.remove("hidden");
-  await refreshTodos();
+  $("newTodoInput").value = "";
+  
+  // 填充指派下拉框
+  try {
+    const res = await api("/api/admin/users");
+    const select = $("newTodoAssignee");
+    select.innerHTML = '<option value="">(不指定)</option>';
+    if (res.users) {
+      res.users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.username;
+        select.appendChild(opt);
+      });
+    }
+  } catch (e) {
+    console.error("Failed to fetch users for assignee:", e);
+  }
 };
 
 $("closeBoardBtn").onclick = () => {
@@ -772,13 +789,15 @@ $("exportBoardBtn").onclick = () => {
   if (token) window.open(`/api/todos/export?token=${token}`);
 };
 
-$("addTodoBtn").onclick = async () => {
+$("submitTodoBtn").onclick = async () => {
   const input = $("newTodoInput");
+  const assigneeSelect = $("newTodoAssignee");
   const val = input.value.trim();
+  const assigneeId = assigneeSelect.value;
   if (!val) return;
   try {
-    await api("/api/todos", { method: "POST", body: { content: val } });
-    input.value = "";
+    await api("/api/todos", { method: "POST", body: { content: val, assigneeId } });
+    $("boardModal").classList.add("hidden");
     await refreshTodos();
   } catch (e) {
     alert("添加失败：" + e.message);
@@ -788,7 +807,7 @@ $("addTodoBtn").onclick = async () => {
 $("newTodoInput").onkeydown = (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    $("addTodoBtn").click();
+    $("submitTodoBtn").click();
   }
 };
 
@@ -810,7 +829,7 @@ async function refreshTodos() {
     });
 
     if (todos.length === 0) {
-      list.innerHTML = "<div style='color:#64748b; text-align:center; padding: 20px;'>暂无任务记录</div>";
+      list.innerHTML = "<div style='color:#64748b; text-align:center; padding: 20px; font-size: 13px;'>暂无待办任务</div>";
       return;
     }
 
@@ -818,7 +837,6 @@ async function refreshTodos() {
       const el = document.createElement("div");
       el.className = "todo-item";
       
-      // 左侧部分（复选框 + 内容）
       const left = document.createElement("div");
       left.className = "todo-left";
       
@@ -831,19 +849,31 @@ async function refreshTodos() {
         refreshTodos();
       };
       
+      const contentWrap = document.createElement("div");
+      contentWrap.style.flex = "1";
+
       const content = document.createElement("div");
       content.className = "todo-content " + (t.completed ? "done" : "");
       content.textContent = t.content;
+      contentWrap.appendChild(content);
+
+      if (t.assigneeName) {
+        const assignee = document.createElement("div");
+        assignee.className = "todo-assignee";
+        assignee.textContent = `@${t.assigneeName}`;
+        contentWrap.appendChild(assignee);
+      }
       
       left.appendChild(cb);
-      left.appendChild(content);
+      left.appendChild(contentWrap);
       
-      // 右侧部分（创建信息/时间）
       const meta = document.createElement("div");
       meta.className = "todo-meta";
-      meta.innerHTML = `<span>创建: ${t.creatorName}</span>` + 
-                       (t.completed ? `<span>完成: ${fmtDate(t.completedAt)}</span>` : "");
       
+      const infoSpan = document.createElement("span");
+      infoSpan.textContent = t.completed ? `已完成` : `创建: ${t.creatorName}`;
+      meta.appendChild(infoSpan);
+
       // 操作按钮（编辑 + 删除）
       const actions = document.createElement("div");
       actions.className = "todo-actions";
@@ -851,7 +881,8 @@ async function refreshTodos() {
       const editBtn = document.createElement("button");
       editBtn.className = "iconBtn";
       editBtn.title = "编辑任务";
-      editBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4facfe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+      editBtn.style.padding = "2px";
+      editBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4facfe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
       editBtn.onclick = async () => {
         const newVal = prompt("修改任务内容", t.content);
         if (newVal !== null && newVal.trim() !== "") {
@@ -863,7 +894,8 @@ async function refreshTodos() {
       const delBtn = document.createElement("button");
       delBtn.className = "iconBtn";
       delBtn.title = "删除任务";
-      delBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+      delBtn.style.padding = "2px";
+      delBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
       delBtn.onclick = async () => {
         if (!confirm("确定要删除此任务吗？")) return;
         await api(`/api/todos/${t.id}`, { method: "DELETE" });
@@ -872,10 +904,10 @@ async function refreshTodos() {
       
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
+      meta.appendChild(actions);
       
       el.appendChild(left);
       el.appendChild(meta);
-      el.appendChild(actions);
       list.appendChild(el);
     });
   } catch (e) {
