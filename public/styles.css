@@ -218,43 +218,88 @@ input::placeholder { color: rgba(255,255,255,0.4); }
 
 .composer {
   margin-top: 4px;
+}
+.composerBox {
   background: rgba(20, 25, 40, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(79, 172, 254, 0.3);
   border-radius: 16px;
-  padding: 12px;
+  padding: 12px 16px 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-.composerRow { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; 
-  margin-top: 8px; 
-}
-.composerActions {
   display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s;
+}
+.composerBox:focus-within {
+  border-color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
 }
 .messageInput {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(79, 172, 254, 0.4);
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  background: transparent;
+  border: none;
   color: #fff;
   resize: none;
-  height: 80px;
-  max-height: 120px;
-  line-height: 1.5;
-  transition: all 0.3s;
+  height: 60px;
+  max-height: 150px;
+  line-height: 1.6;
+  font-size: 15px;
 }
 .messageInput:focus {
   outline: none;
-  border-color: #00f2fe;
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+}
+.composerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.composerLeft, .composerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.modelHint {
+  font-size: 13px;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+.sendIconBtn {
+  background: #10b981;
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sendIconBtn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+.sendIconBtn:active {
+  transform: translateY(1px);
 }
 
 /* Custom Scrollbars */

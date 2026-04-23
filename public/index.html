@@ -115,13 +115,24 @@
             <div id="messages" class="messages"></div>
             <div class="composer">
               <div id="pendingUploads" class="pending"></div>
-              <div class="composerRow">
+              <div class="composerBox">
                 <textarea id="messageInput" class="messageInput" placeholder="输入消息...（Enter 发送，Shift+Enter 换行）" rows="3"></textarea>
                 <div class="composerActions">
-                  <button id="emojiBtn" class="btn btn-secondary" title="表情">表情</button>
-                  <input id="fileInput" type="file" class="hidden" />
-                  <button id="uploadBtn" class="btn btn-secondary">上传文件/图片</button>
-                  <button id="sendBtn" class="btn">发送</button>
+                  <div class="composerLeft">
+                    <button id="emojiBtn" class="iconBtn" title="表情">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                    </button>
+                    <button id="uploadBtn" class="iconBtn" title="上传图片/文件">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </button>
+                    <input id="fileInput" type="file" class="hidden" />
+                  </div>
+                  <div class="composerRight">
+                    <span class="modelHint">Intranet Chat</span>
+                    <button id="sendBtn" class="sendIconBtn" title="发送">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="hint">提示：支持图片预览；文件点击下载。默认保留最近 2000 条消息。</div>
