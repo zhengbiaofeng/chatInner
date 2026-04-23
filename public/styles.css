@@ -496,7 +496,6 @@ a:hover { text-decoration: underline; }
 }
 .todo-assignee {
   display: inline-block;
-  margin-top: 6px;
   font-size: 11px;
   padding: 2px 6px;
   border-radius: 4px;

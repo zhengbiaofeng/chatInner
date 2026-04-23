@@ -883,16 +883,9 @@ async function refreshTodos() {
       contentWrap.style.flex = "1";
 
       const content = document.createElement("div");
-      content.className = "todo-content" + (t.completed ? " done" : "");
+      content.className = "todo-content " + (t.completed ? "done" : "");
       content.textContent = t.content;
       contentWrap.appendChild(content);
-
-      if (t.assigneeName) {
-        const assignee = document.createElement("div");
-        assignee.className = "todo-assignee";
-        assignee.textContent = `@${t.assigneeName}`;
-        contentWrap.appendChild(assignee);
-      }
       
       left.appendChild(cb);
       left.appendChild(contentWrap);
@@ -900,9 +893,23 @@ async function refreshTodos() {
       const meta = document.createElement("div");
       meta.className = "todo-meta";
       
+      const metaLeft = document.createElement("div");
+      metaLeft.style.display = "flex";
+      metaLeft.style.alignItems = "center";
+      metaLeft.style.gap = "8px";
+
       const infoSpan = document.createElement("span");
       infoSpan.textContent = t.completed ? `已完成` : `创建: ${t.creatorName}`;
-      meta.appendChild(infoSpan);
+      metaLeft.appendChild(infoSpan);
+
+      if (t.assigneeName) {
+        const assignee = document.createElement("span");
+        assignee.className = "todo-assignee";
+        assignee.textContent = `@${t.assigneeName}`;
+        metaLeft.appendChild(assignee);
+      }
+      
+      meta.appendChild(metaLeft);
 
       // 操作按钮（编辑 + 删除）
       const actions = document.createElement("div");
