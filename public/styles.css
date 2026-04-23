@@ -226,7 +226,18 @@ input::placeholder { color: rgba(255,255,255,0.4); }
   padding: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
-.composerRow { display: flex; gap: 10px; align-items: flex-end; margin-top: 8px; }
+.composerRow { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  margin-top: 8px; 
+}
+.composerActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
 .messageInput {
   flex: 1;
   padding: 12px;

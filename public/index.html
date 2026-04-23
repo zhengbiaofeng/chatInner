@@ -116,11 +116,13 @@
             <div class="composer">
               <div id="pendingUploads" class="pending"></div>
               <div class="composerRow">
-                <textarea id="messageInput" class="messageInput" placeholder="输入消息...（Enter 发送，Shift+Enter 换行）" rows="2"></textarea>
-                <input id="fileInput" type="file" class="hidden" />
-                <button id="emojiBtn" class="btn btn-secondary" title="表情">表情</button>
-                <button id="uploadBtn" class="btn btn-secondary">上传文件/图片</button>
-                <button id="sendBtn" class="btn">发送</button>
+                <textarea id="messageInput" class="messageInput" placeholder="输入消息...（Enter 发送，Shift+Enter 换行）" rows="3"></textarea>
+                <div class="composerActions">
+                  <button id="emojiBtn" class="btn btn-secondary" title="表情">表情</button>
+                  <input id="fileInput" type="file" class="hidden" />
+                  <button id="uploadBtn" class="btn btn-secondary">上传文件/图片</button>
+                  <button id="sendBtn" class="btn">发送</button>
+                </div>
               </div>
               <div class="hint">提示：支持图片预览；文件点击下载。默认保留最近 2000 条消息。</div>
               <div id="chatError" class="error"></div>
