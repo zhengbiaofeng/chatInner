@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "passwordHash": "$2a$10$3eSHR8v0vRXSz4vYAFBWpekR0lsJRZnUYWFIhXDK25vT/ipN7UJOe",
+      "role": "admin",
+      "createdAt": 1776915422496
+    }
+  ],
+  "messages": [
+    {
+      "id": "69f5e92d38ab4eeba9a2e20a54f9a84e",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "11",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1776915442126
+    },
+    {
+      "id": "2203900624ce42d4ac85aa2cfa04ce91",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "1111",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1776915443292
+    },
+    {
+      "id": "c657d63c72234577b9cd62738cd6bce3",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "1111",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1776915444446
+    }
+  ],
+  "attachments": []
+}

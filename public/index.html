@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>内网聊天室</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="title">内网聊天室</div>
+        <div class="right">
+          <span id="me"></span>
+          <button id="adminToggleBtn" class="btn btn-secondary hidden">管理</button>
+          <button id="logoutBtn" class="btn btn-secondary hidden">退出</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="setupView" class="card hidden">
+          <h2>创建管理员账号</h2>
+          <div class="row">
+            <label>用户名</label>
+            <input id="setupUsername" placeholder="例如：admin" />
+          </div>
+          <div class="row">
+            <label>密码</label>
+            <input id="setupPassword" type="password" placeholder="请设置密码" />
+          </div>
+          <button id="setupBtn" class="btn">创建账号</button>
+          <div id="setupError" class="error"></div>
+        </section>
+
+        <section id="loginView" class="card hidden">
+          <h2>登录</h2>
+          <div class="row">
+            <label>用户名</label>
+            <input id="loginUsername" placeholder="用户名" />
+          </div>
+          <div class="row">
+            <label>密码</label>
+            <input id="loginPassword" type="password" placeholder="密码" />
+          </div>
+          <div class="rowActions">
+            <button id="loginBtn" class="btn">登录</button>
+            <button id="goRegisterBtn" class="btn btn-secondary hidden">注册新账号</button>
+          </div>
+          <div id="loginError" class="error"></div>
+          <div id="registerHint" class="hint hidden">未开启自助注册，请联系管理员创建账号。</div>
+        </section>
+
+        <section id="registerView" class="card hidden">
+          <h2>注册新账号</h2>
+          <div class="row">
+            <label>用户名</label>
+            <input id="regUsername" placeholder="用户名" />
+          </div>
+          <div class="row">
+            <label>密码</label>
+            <input id="regPassword" type="password" placeholder="密码" />
+          </div>
+          <div class="rowActions">
+            <button id="regBtn" class="btn">注册并登录</button>
+            <button id="backToLoginBtn" class="btn btn-secondary">返回登录</button>
+          </div>
+          <div id="regError" class="error"></div>
+        </section>
+
+        <section id="chatView" class="hidden">
+          <div class="chat">
+            <div id="adminPanel" class="card hidden">
+              <div class="adminHeader">
+                <h2>管理员：创建团队账号</h2>
+                <button id="adminCollapseBtn" class="btn btn-small btn-secondary">收起</button>
+              </div>
+              <div class="row">
+                <label>用户名</label>
+                <input id="newUsername" placeholder="例如：zhangsan" />
+              </div>
+              <div class="row">
+                <label>密码</label>
+                <input id="newPassword" type="password" placeholder="设置初始密码" />
+              </div>
+              <div class="rowActions">
+                <button id="createUserBtn" class="btn">创建账号</button>
+                <button id="refreshUsersBtn" class="btn btn-secondary">刷新列表</button>
+              </div>
+              <div id="adminError" class="error"></div>
+              <div class="hint">创建后把账号密码发给同事即可登录。</div>
+              <div class="emojiDivider"></div>
+              <div class="adminListTitle">已创建账号</div>
+              <div id="usersList" class="usersList"></div>
+            </div>
+            <div id="messages" class="messages"></div>
+            <div class="composer">
+              <div id="pendingUploads" class="pending"></div>
+              <div class="composerRow">
+                <textarea id="messageInput" class="messageInput" placeholder="输入消息...（Enter 发送，Shift+Enter 换行）" rows="2"></textarea>
+                <input id="fileInput" type="file" class="hidden" />
+                <button id="emojiBtn" class="btn btn-secondary" title="表情">表情</button>
+                <button id="uploadBtn" class="btn btn-secondary">上传文件/图片</button>
+                <button id="sendBtn" class="btn">发送</button>
+              </div>
+              <div class="hint">提示：支持图片预览；文件点击下载。默认保留最近 2000 条消息。</div>
+              <div id="chatError" class="error"></div>
+            </div>
+          </div>
+        </section>
+
+        <div id="emojiPanel" class="emojiPanel hidden">
+          <div class="emojiHeader">
+            <div>常用表情</div>
+            <button id="emojiClose" class="btn btn-small btn-secondary">关闭</button>
+          </div>
+          <div id="emojiList" class="emojiList"></div>
+          <div class="emojiDivider"></div>
+          <div class="emojiHeader">
+            <div>内置表情包</div>
+          </div>
+          <div id="stickerList" class="stickerList"></div>
+          <div class="hint">点击 Emoji 会插入到输入框；点击表情包会直接发送。</div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
