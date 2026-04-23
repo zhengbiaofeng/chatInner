@@ -1,1 +1,81 @@
-{"users":[{"id":"77b1023dbdc54740a8d54be885bcd924","username":"admin","passwordHash":"$2a$10$2wjOW8cL6lw5cViI1O3dnuhpNFFtb1i6aU9aBTLHqBsOUvTSW0Mqi","role":"admin","createdAt":1776915422496},{"id":"08e4e97c19d84911b3f8d7d8d8dc5512","username":"俊伟","passwordHash":"$2a$10$E0cGfocH848g2payOkCMru2e9wsFrEycV9IdpD6J2s3mU2b.zBIVK","role":"user","createdAt":1776945186030}],"messages":[{"id":"123","text":"Fake message 1","room":"general"}],"attachments":[{"id":"1a8c2f4adf75402383dd08cc4cd9c19a","originalName":"pom.xml","storedName":"1a8c2f4adf75402383dd08cc4cd9c19a__pom.xml","mime":"text/xml","size":1730,"uploaderId":"77b1023dbdc54740a8d54be885bcd924","createdAt":1776931019491},{"id":"de458969dc8240dbb798dc80ada616c7","originalName":"屏幕截图 2025-11-26 155517.png","storedName":"de458969dc8240dbb798dc80ada616c7______ 2025-11-26 155517.png","mime":"image/png","size":829201,"uploaderId":"77b1023dbdc54740a8d54be885bcd924","createdAt":1776931034589}],"todos":[{"id":"1a284b28830a44d0922f7a6d87092032","content":"11111111111","completed":true,"creatorId":"77b1023dbdc54740a8d54be885bcd924","creatorName":"admin","createdAt":1776944273077,"completedAt":1776956323472},{"id":"91c9ad8852724e9997ef33ceb1e60d5b","content":"11111","completed":true,"creatorId":"77b1023dbdc54740a8d54be885bcd924","creatorName":"admin","createdAt":1776945211673,"completedAt":1776956322203},{"id":"e592d73ca2144c22bfafad5efea50e49","content":"ggggggggg","completed":false,"creatorId":"77b1023dbdc54740a8d54be885bcd924","creatorName":"admin","assigneeId":"08e4e97c19d84911b3f8d7d8d8dc5512","assigneeName":"俊伟","createdAt":1776956168046,"completedAt":null}]}
+{
+  "users": [
+    {
+      "id": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "passwordHash": "$2a$10$2wjOW8cL6lw5cViI1O3dnuhpNFFtb1i6aU9aBTLHqBsOUvTSW0Mqi",
+      "role": "admin",
+      "createdAt": 1776915422496
+    },
+    {
+      "id": "08e4e97c19d84911b3f8d7d8d8dc5512",
+      "username": "俊伟",
+      "passwordHash": "$2a$10$E0cGfocH848g2payOkCMru2e9wsFrEycV9IdpD6J2s3mU2b.zBIVK",
+      "role": "user",
+      "createdAt": 1776945186030
+    }
+  ],
+  "messages": [
+    {
+      "id": "077c575e6f784d929b2115ca97859169",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "1",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1776960702471
+    }
+  ],
+  "attachments": [
+    {
+      "id": "1a8c2f4adf75402383dd08cc4cd9c19a",
+      "originalName": "pom.xml",
+      "storedName": "1a8c2f4adf75402383dd08cc4cd9c19a__pom.xml",
+      "mime": "text/xml",
+      "size": 1730,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1776931019491
+    },
+    {
+      "id": "de458969dc8240dbb798dc80ada616c7",
+      "originalName": "屏幕截图 2025-11-26 155517.png",
+      "storedName": "de458969dc8240dbb798dc80ada616c7______ 2025-11-26 155517.png",
+      "mime": "image/png",
+      "size": 829201,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1776931034589
+    }
+  ],
+  "todos": [
+    {
+      "id": "1a284b28830a44d0922f7a6d87092032",
+      "content": "11111111111",
+      "completed": true,
+      "creatorId": "77b1023dbdc54740a8d54be885bcd924",
+      "creatorName": "admin",
+      "createdAt": 1776944273077,
+      "completedAt": 1776956323472
+    },
+    {
+      "id": "91c9ad8852724e9997ef33ceb1e60d5b",
+      "content": "11111",
+      "completed": true,
+      "creatorId": "77b1023dbdc54740a8d54be885bcd924",
+      "creatorName": "admin",
+      "createdAt": 1776945211673,
+      "completedAt": 1776956322203
+    },
+    {
+      "id": "e592d73ca2144c22bfafad5efea50e49",
+      "content": "ggggggggg",
+      "completed": false,
+      "creatorId": "77b1023dbdc54740a8d54be885bcd924",
+      "creatorName": "admin",
+      "assigneeId": "08e4e97c19d84911b3f8d7d8d8dc5512",
+      "assigneeName": "俊伟",
+      "createdAt": 1776956168046,
+      "completedAt": null
+    }
+  ]
+}

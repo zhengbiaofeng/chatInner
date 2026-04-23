@@ -444,11 +444,38 @@ function connectSocket() {
   state.socket.on("chat:cleared", () => {
     $("messages").innerHTML = "";
     const systemMsg = document.createElement("div");
-    systemMsg.style.textAlign = "center";
+    systemMsg.style.display = "flex";
+    systemMsg.style.alignItems = "center";
+    systemMsg.style.justifyContent = "center";
+    systemMsg.style.gap = "10px";
     systemMsg.style.padding = "20px";
     systemMsg.style.color = "#ef4444";
     systemMsg.style.fontSize = "14px";
-    systemMsg.textContent = "管理员已清空所有聊天记录";
+
+    const textSpan = document.createElement("span");
+    textSpan.textContent = "管理员已清空所有聊天记录";
+    
+    const closeBtn = document.createElement("button");
+    closeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+    closeBtn.style.background = "transparent";
+    closeBtn.style.border = "none";
+    closeBtn.style.color = "#ef4444";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.padding = "4px";
+    closeBtn.style.display = "flex";
+    closeBtn.style.alignItems = "center";
+    closeBtn.style.justifyContent = "center";
+    closeBtn.style.borderRadius = "4px";
+    closeBtn.onmouseover = () => closeBtn.style.background = "rgba(239, 68, 68, 0.1)";
+    closeBtn.onmouseout = () => closeBtn.style.background = "transparent";
+    closeBtn.title = "关闭提示";
+    
+    closeBtn.onclick = () => {
+      systemMsg.remove();
+    };
+
+    systemMsg.appendChild(textSpan);
+    systemMsg.appendChild(closeBtn);
     $("messages").appendChild(systemMsg);
   });
 }
