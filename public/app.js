@@ -255,6 +255,13 @@ function addMessage(m) {
   const box = $("messages");
   const el = document.createElement("div");
   el.className = "msg";
+  
+  if (state.user && m.userId === state.user.id) {
+    el.classList.add("msg-me");
+  } else {
+    el.classList.add("msg-other");
+  }
+
   const head = document.createElement("div");
   head.className = "msgHead";
   head.textContent = `${m.username} · ${fmtTime(m.createdAt)}`;
@@ -470,6 +477,53 @@ async function doCreateUser() {
   }
 }
 
+// 记录当前编辑的用户 ID
+let currentEditUserId = null;
+
+async function doDeleteUser(id, username) {
+  if (!confirm(`确定要删除用户 "${username}" 吗？此操作不可恢复。`)) return;
+  try {
+    await api(`/api/admin/users/${id}`, { method: "DELETE" });
+    await refreshUsers();
+  } catch (e) {
+    alert(`删除失败: ${e.message}`);
+  }
+}
+
+function openEditModal(id, username) {
+  currentEditUserId = id;
+  $("editUsername").value = username;
+  $("editPassword").value = "";
+  $("editUserError").textContent = "";
+  $("editUserModal").classList.remove("hidden");
+}
+
+function closeEditModal() {
+  currentEditUserId = null;
+  $("editUserModal").classList.add("hidden");
+}
+
+async function saveEditUser() {
+  if (!currentEditUserId) return;
+  const username = $("editUsername").value.trim();
+  const password = $("editPassword").value;
+  
+  const body = {};
+  if (username) body.username = username;
+  if (password) body.password = password;
+
+  try {
+    await api(`/api/admin/users/${currentEditUserId}`, { method: "PUT", body });
+    closeEditModal();
+    await refreshUsers();
+  } catch (e) {
+    $("editUserError").textContent = e.message;
+  }
+}
+
+$("cancelEditUserBtn").onclick = closeEditModal;
+$("saveEditUserBtn").onclick = saveEditUser;
+
 async function refreshUsers() {
   const wrap = $("usersList");
   if (!wrap) return;
@@ -480,11 +534,34 @@ async function refreshUsers() {
   users.forEach((u) => {
     const row = document.createElement("div");
     row.className = "userRow";
+    
     const left = document.createElement("div");
+    left.className = "userInfo";
     left.textContent = `${u.username}${u.role === "admin" ? "（管理员）" : ""}`;
+    
     const right = document.createElement("div");
     right.className = "userMeta";
-    right.textContent = fmtDate(u.createdAt);
+    
+    const dateSpan = document.createElement("span");
+    dateSpan.textContent = fmtDate(u.createdAt);
+    right.appendChild(dateSpan);
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn btn-small btn-secondary";
+    editBtn.textContent = "编辑";
+    editBtn.style.marginLeft = "10px";
+    editBtn.onclick = () => openEditModal(u.id, u.username);
+    right.appendChild(editBtn);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-small";
+    delBtn.style.backgroundColor = "#ef4444";
+    delBtn.style.color = "#fff";
+    delBtn.style.marginLeft = "6px";
+    delBtn.textContent = "删除";
+    delBtn.onclick = () => doDeleteUser(u.id, u.username);
+    right.appendChild(delBtn);
+
     row.appendChild(left);
     row.appendChild(right);
     wrap.appendChild(row);

@@ -18,6 +18,26 @@
       </header>
 
       <main>
+        <!-- Modal for Edit User -->
+        <div id="editUserModal" class="modal hidden">
+          <div class="modal-content card">
+            <h2>编辑用户</h2>
+            <div class="row">
+              <label>新用户名</label>
+              <input id="editUsername" placeholder="留空则不修改" />
+            </div>
+            <div class="row">
+              <label>新密码</label>
+              <input id="editPassword" type="password" placeholder="留空则不修改" />
+            </div>
+            <div class="rowActions" style="justify-content: flex-end;">
+              <button id="cancelEditUserBtn" class="btn btn-secondary">取消</button>
+              <button id="saveEditUserBtn" class="btn">保存</button>
+            </div>
+            <div id="editUserError" class="error"></div>
+          </div>
+        </div>
+
         <section id="setupView" class="card hidden">
           <h2>创建管理员账号</h2>
           <div class="row">
