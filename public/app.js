@@ -811,6 +811,29 @@ $("newTodoInput").onkeydown = (e) => {
   }
 };
 
+let currentEditTodoId = null;
+
+$("closeEditTodoBtn").onclick = () => {
+  $("editTodoModal").classList.add("hidden");
+  currentEditTodoId = null;
+};
+
+$("saveTodoBtn").onclick = async () => {
+  if (!currentEditTodoId) return;
+  const content = $("editTodoInput").value.trim();
+  const assigneeId = $("editTodoAssignee").value;
+  if (!content) return;
+  
+  try {
+    await api(`/api/todos/${currentEditTodoId}`, { method: "PUT", body: { content, assigneeId } });
+    $("editTodoModal").classList.add("hidden");
+    currentEditTodoId = null;
+    refreshTodos();
+  } catch (e) {
+    alert("修改失败：" + e.message);
+  }
+};
+
 async function refreshTodos() {
   const list = $("todoList");
   if (!list) return;
@@ -884,11 +907,33 @@ async function refreshTodos() {
       editBtn.style.padding = "2px";
       editBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4facfe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
       editBtn.onclick = async () => {
-        const newVal = prompt("修改任务内容", t.content);
-        if (newVal !== null && newVal.trim() !== "") {
-          await api(`/api/todos/${t.id}`, { method: "PUT", body: { content: newVal.trim() } });
-          refreshTodos();
+        currentEditTodoId = t.id;
+        $("editTodoInput").value = t.content;
+        
+        // 填充下拉框
+        try {
+          const res = await api("/api/admin/users");
+          const select = $("editTodoAssignee");
+          select.innerHTML = '<option value="">(不指定)</option>';
+          if (res.users) {
+            res.users.forEach(u => {
+              const opt = document.createElement("option");
+              opt.value = u.id;
+              opt.textContent = u.username;
+              select.appendChild(opt);
+            });
+          }
+          // 回显当前的指派人
+          if (t.assigneeId) {
+            select.value = t.assigneeId;
+          } else {
+            select.value = "";
+          }
+        } catch (e) {
+          console.error("Failed to fetch users for edit assignee:", e);
         }
+
+        $("editTodoModal").classList.remove("hidden");
       };
       
       const delBtn = document.createElement("button");

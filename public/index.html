@@ -40,6 +40,27 @@
           </div>
         </div>
 
+        <!-- Modal for Edit Todo -->
+        <div id="editTodoModal" class="modal hidden">
+          <div class="modal-content card">
+            <h2>编辑待办任务</h2>
+            <div class="row">
+              <label>任务内容</label>
+              <input id="editTodoInput" />
+            </div>
+            <div class="row">
+              <label>指派给</label>
+              <select id="editTodoAssignee" class="input-select">
+                <option value="">(不指定)</option>
+              </select>
+            </div>
+            <div class="rowActions" style="justify-content: flex-end;">
+              <button id="closeEditTodoBtn" class="btn btn-secondary">取消</button>
+              <button id="saveTodoBtn" class="btn">保存修改</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Modal for Edit User -->
         <div id="editUserModal" class="modal hidden">
           <div class="modal-content card">
