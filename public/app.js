@@ -16,6 +16,8 @@ function setView(name) {
   $("loginView").classList.toggle("hidden", name !== "login");
   $("registerView").classList.toggle("hidden", name !== "register");
   $("chatView").classList.toggle("hidden", name !== "chat");
+  const header = $("header");
+  if (header) header.classList.toggle("hidden", name !== "chat");
 }
 
 let errorTimeouts = {};
@@ -960,7 +962,6 @@ async function refreshTodos() {
       el.appendChild(meta);
       list.appendChild(el);
     });
-  }
   } catch (e) {
     list.innerHTML = `<div class="error">加载失败: ${e.message}</div>`;
   }
