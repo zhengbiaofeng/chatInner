@@ -15,7 +15,7 @@ class JsonStore {
   async init() {
     await fsp.mkdir(path.dirname(this.filePath), { recursive: true });
     if (!fs.existsSync(this.filePath)) {
-      const initial = { users: [], messages: [], attachments: [] };
+      const initial = { users: [], messages: [], attachments: [], todos: [] };
       await fsp.writeFile(this.filePath, JSON.stringify(initial, null, 2), "utf-8");
     }
   }

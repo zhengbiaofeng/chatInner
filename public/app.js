@@ -757,5 +757,132 @@ function initEmojiPanel() {
   });
 }
 
+// ==== Todos / Blackboard ====
+$("boardBtn").onclick = async () => {
+  $("boardModal").classList.remove("hidden");
+  await refreshTodos();
+};
+
+$("closeBoardBtn").onclick = () => {
+  $("boardModal").classList.add("hidden");
+};
+
+$("exportBoardBtn").onclick = () => {
+  const token = localStorage.getItem("token");
+  if (token) window.open(`/api/todos/export?token=${token}`);
+};
+
+$("addTodoBtn").onclick = async () => {
+  const input = $("newTodoInput");
+  const val = input.value.trim();
+  if (!val) return;
+  try {
+    await api("/api/todos", { method: "POST", body: { content: val } });
+    input.value = "";
+    await refreshTodos();
+  } catch (e) {
+    alert("添加失败：" + e.message);
+  }
+};
+
+$("newTodoInput").onkeydown = (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    $("addTodoBtn").click();
+  }
+};
+
+async function refreshTodos() {
+  const list = $("todoList");
+  if (!list) return;
+  list.innerHTML = "加载中...";
+  try {
+    const res = await api("/api/todos");
+    list.innerHTML = "";
+    const todos = res.todos || [];
+    
+    // 排序：未完成在前，已完成在后；同状态下按时间倒序
+    todos.sort((a, b) => {
+      if (a.completed === b.completed) {
+        return b.createdAt - a.createdAt;
+      }
+      return a.completed ? 1 : -1;
+    });
+
+    if (todos.length === 0) {
+      list.innerHTML = "<div style='color:#64748b; text-align:center; padding: 20px;'>暂无任务记录</div>";
+      return;
+    }
+
+    todos.forEach(t => {
+      const el = document.createElement("div");
+      el.className = "todo-item";
+      
+      // 左侧部分（复选框 + 内容）
+      const left = document.createElement("div");
+      left.className = "todo-left";
+      
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.className = "todo-checkbox";
+      cb.checked = t.completed;
+      cb.onchange = async () => {
+        await api(`/api/todos/${t.id}`, { method: "PUT", body: { completed: cb.checked } });
+        refreshTodos();
+      };
+      
+      const content = document.createElement("div");
+      content.className = "todo-content " + (t.completed ? "done" : "");
+      content.textContent = t.content;
+      
+      left.appendChild(cb);
+      left.appendChild(content);
+      
+      // 右侧部分（创建信息/时间）
+      const meta = document.createElement("div");
+      meta.className = "todo-meta";
+      meta.innerHTML = `<span>创建: ${t.creatorName}</span>` + 
+                       (t.completed ? `<span>完成: ${fmtDate(t.completedAt)}</span>` : "");
+      
+      // 操作按钮（编辑 + 删除）
+      const actions = document.createElement("div");
+      actions.className = "todo-actions";
+      
+      const editBtn = document.createElement("button");
+      editBtn.className = "iconBtn";
+      editBtn.title = "编辑任务";
+      editBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4facfe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+      editBtn.onclick = async () => {
+        const newVal = prompt("修改任务内容", t.content);
+        if (newVal !== null && newVal.trim() !== "") {
+          await api(`/api/todos/${t.id}`, { method: "PUT", body: { content: newVal.trim() } });
+          refreshTodos();
+        }
+      };
+      
+      const delBtn = document.createElement("button");
+      delBtn.className = "iconBtn";
+      delBtn.title = "删除任务";
+      delBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+      delBtn.onclick = async () => {
+        if (!confirm("确定要删除此任务吗？")) return;
+        await api(`/api/todos/${t.id}`, { method: "DELETE" });
+        refreshTodos();
+      };
+      
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      
+      el.appendChild(left);
+      el.appendChild(meta);
+      el.appendChild(actions);
+      list.appendChild(el);
+    });
+  } catch (e) {
+    list.innerHTML = `<div class="error">加载失败: ${e.message}</div>`;
+  }
+}
+
+// ==== Init ====
 initEmojiPanel();
 init();

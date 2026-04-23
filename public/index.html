@@ -12,12 +12,31 @@
         <div class="title">内网聊天室</div>
         <div class="right">
           <span id="me"></span>
+          <button id="boardBtn" class="btn btn-secondary">任务黑板</button>
           <button id="adminToggleBtn" class="btn btn-secondary hidden">管理</button>
           <button id="logoutBtn" class="btn btn-secondary hidden">退出</button>
         </div>
       </header>
 
       <main>
+        <!-- Modal for Todos Blackboard -->
+        <div id="boardModal" class="modal hidden">
+          <div class="modal-content card" style="width: 700px; max-width: 95%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h2>团队任务黑板</h2>
+              <div style="display: flex; gap: 8px;">
+                <button id="exportBoardBtn" class="btn btn-secondary btn-small">导出 MD</button>
+                <button id="closeBoardBtn" class="btn btn-secondary btn-small">关闭</button>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+              <input id="newTodoInput" placeholder="输入新待办任务... (Enter 键添加)" style="flex: 1;" />
+              <button id="addTodoBtn" class="btn">添加</button>
+            </div>
+            <div id="todoList" class="todo-list"></div>
+          </div>
+        </div>
+
         <!-- Modal for Edit User -->
         <div id="editUserModal" class="modal hidden">
           <div class="modal-content card">

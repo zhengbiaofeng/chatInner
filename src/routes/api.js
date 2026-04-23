@@ -217,5 +217,85 @@ module.exports = function createApiRouter(store, config) {
     res.json({ messages: msgs });
   }));
 
+  // ---- Todos / Blackboard ----
+  router.get("/todos", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const db = await store.read();
+    res.json({ todos: db.todos || [] });
+  }));
+
+  router.post("/todos", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const { content } = req.body || {};
+    if (!content) return res.status(400).json({ error: "内容不能为空" });
+    let newTodo;
+    await store.update(async (db) => {
+      if (!db.todos) db.todos = [];
+      newTodo = {
+        id: genId(),
+        content: String(content).trim(),
+        completed: false,
+        creatorId: req.user.id,
+        creatorName: req.user.username,
+        createdAt: Date.now(),
+        completedAt: null
+      };
+      db.todos.push(newTodo);
+      return db;
+    });
+    res.json({ todo: newTodo });
+  }));
+
+  router.put("/todos/:id", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const { content, completed } = req.body || {};
+    await store.update(async (db) => {
+      if (!db.todos) db.todos = [];
+      const t = db.todos.find(x => x.id === req.params.id);
+      if (!t) {
+        const e = new Error("任务不存在"); e.statusCode = 404; throw e;
+      }
+      if (content !== undefined) t.content = String(content).trim();
+      if (completed !== undefined) {
+        t.completed = !!completed;
+        t.completedAt = t.completed ? Date.now() : null;
+      }
+      return db;
+    });
+    res.json({ ok: true });
+  }));
+
+  router.delete("/todos/:id", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    await store.update(async (db) => {
+      if (!db.todos) db.todos = [];
+      db.todos = db.todos.filter(x => x.id !== req.params.id);
+      return db;
+    });
+    res.json({ ok: true });
+  }));
+
+  router.get("/todos/export", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const db = await store.read();
+    const todos = db.todos || [];
+    let md = "# 团队待办任务黑板\n\n";
+    const pending = todos.filter(t => !t.completed);
+    const done = todos.filter(t => t.completed);
+
+    md += "## 待办 / 进行中\n";
+    if (pending.length === 0) md += "暂无待办任务。\n";
+    pending.forEach(t => {
+      const cDate = new Date(t.createdAt).toLocaleString();
+      md += `- [ ] ${t.content} (创建人: ${t.creatorName}, 时间: ${cDate})\n`;
+    });
+
+    md += "\n## 已完成\n";
+    if (done.length === 0) md += "暂无已完成任务。\n";
+    done.forEach(t => {
+      const fDate = new Date(t.completedAt).toLocaleString();
+      md += `- [x] ~~${t.content}~~ (完成人: ${t.creatorName}, 完成时间: ${fDate})\n`;
+    });
+
+    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="team-todos.md"');
+    res.send(md);
+  }));
+
   return router;
 };
