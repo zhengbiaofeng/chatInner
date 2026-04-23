@@ -421,6 +421,7 @@ async function enterChat() {
   } catch (e) {
     setError("chatError", `连接失败：${e.message || e}`);
   }
+  refreshTodos();
 }
 
 async function loadHistory() {
@@ -784,6 +785,10 @@ $("closeBoardBtn").onclick = () => {
   $("boardModal").classList.add("hidden");
 };
 
+$("refreshBoardBtn").onclick = () => {
+  refreshTodos();
+};
+
 $("exportBoardBtn").onclick = () => {
   const token = localStorage.getItem("token");
   if (token) window.open(`/api/todos/export?token=${token}`);
@@ -876,7 +881,7 @@ async function refreshTodos() {
       contentWrap.style.flex = "1";
 
       const content = document.createElement("div");
-      content.className = "todo-content " + (t.completed ? "done" : "");
+      content.className = "todo-content" + (t.completed ? " done" : "");
       content.textContent = t.content;
       contentWrap.appendChild(content);
 
@@ -955,6 +960,7 @@ async function refreshTodos() {
       el.appendChild(meta);
       list.appendChild(el);
     });
+  }
   } catch (e) {
     list.innerHTML = `<div class="error">加载失败: ${e.message}</div>`;
   }
