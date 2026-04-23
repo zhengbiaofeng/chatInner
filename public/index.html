@@ -61,6 +61,18 @@
           </div>
         </div>
 
+        <!-- Modal for Delete Todo Confirm -->
+        <div id="deleteTodoModal" class="modal hidden">
+          <div class="modal-content card" style="width: 320px; text-align: center;">
+            <h2 style="margin-bottom: 10px; color: #ef4444;">确认删除</h2>
+            <p style="margin-bottom: 24px; color: #cbd5e1; font-size: 14px;">确定要永久删除此待办任务吗？</p>
+            <div class="rowActions" style="justify-content: center; gap: 12px;">
+              <button id="cancelDeleteTodoBtn" class="btn btn-secondary">取消</button>
+              <button id="confirmDeleteTodoBtn" class="btn" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #ef4444;">确认删除</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Modal for Edit User -->
         <div id="editUserModal" class="modal hidden">
           <div class="modal-content card">

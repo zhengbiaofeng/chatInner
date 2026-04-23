@@ -819,6 +819,7 @@ $("newTodoInput").onkeydown = (e) => {
 };
 
 let currentEditTodoId = null;
+let currentDeleteTodoId = null;
 
 $("closeEditTodoBtn").onclick = () => {
   $("editTodoModal").classList.add("hidden");
@@ -838,6 +839,23 @@ $("saveTodoBtn").onclick = async () => {
     refreshTodos();
   } catch (e) {
     alert("修改失败：" + e.message);
+  }
+};
+
+$("cancelDeleteTodoBtn").onclick = () => {
+  $("deleteTodoModal").classList.add("hidden");
+  currentDeleteTodoId = null;
+};
+
+$("confirmDeleteTodoBtn").onclick = async () => {
+  if (!currentDeleteTodoId) return;
+  try {
+    await api(`/api/todos/${currentDeleteTodoId}`, { method: "DELETE" });
+    $("deleteTodoModal").classList.add("hidden");
+    currentDeleteTodoId = null;
+    refreshTodos();
+  } catch (e) {
+    alert("删除失败：" + e.message);
   }
 };
 
@@ -955,10 +973,9 @@ async function refreshTodos() {
       delBtn.title = "删除任务";
       delBtn.style.padding = "2px";
       delBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-      delBtn.onclick = async () => {
-        if (!confirm("确定要删除此任务吗？")) return;
-        await api(`/api/todos/${t.id}`, { method: "DELETE" });
-        refreshTodos();
+      delBtn.onclick = () => {
+        currentDeleteTodoId = t.id;
+        $("deleteTodoModal").classList.remove("hidden");
       };
       
       actions.appendChild(editBtn);
