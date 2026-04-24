@@ -1113,7 +1113,7 @@ $("ctxCopy").onclick = () => {
   if (contextMenuTargetMsg && contextMenuTargetMsg.text) {
     navigator.clipboard.writeText(contextMenuTargetMsg.text).then(() => {
       showToast("文本已复制");
-    }).catch(e => showToast("复制失败", "error"));
+    }).catch(e => showToast("操作失败: " + e.message, "error");
   } else {
     showToast("该消息没有可复制的文本", "error");
   }
