@@ -58,5 +58,22 @@
       "createdAt": 1776956168046,
       "completedAt": null
     }
+  ],
+  "favorites": [
+    {
+      "id": "f97ea5fa10b74622908a496e29ba6457",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "message": {
+        "id": "9b2ceca4428d4314b9cf51f15a91a460",
+        "room": "general",
+        "userId": "77b1023dbdc54740a8d54be885bcd924",
+        "username": "admin",
+        "text": "111",
+        "sticker": "",
+        "attachments": [],
+        "createdAt": 1776962226055
+      },
+      "createdAt": 1777009168642
+    }
   ]
 }

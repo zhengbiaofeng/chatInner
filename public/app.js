@@ -1,4 +1,33 @@
 const $ = (id) => document.getElementById(id);
+const genId = () => Math.random().toString(36).substr(2, 9);
+
+// Custom Toast Notification System
+function showToast(msg, type = "success") {
+  // Remove existing toast if any
+  const existing = document.getElementById("sysToast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.id = "sysToast";
+  toast.className = `toast ${type}`;
+  
+  let icon = "";
+  if (type === "success") icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+  if (type === "error") icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+  if (type === "info") icon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+
+  toast.innerHTML = `${icon} <span>${escapeHTML(msg)}</span>`;
+  document.body.appendChild(toast);
+
+  // Trigger reflow for animation
+  void toast.offsetWidth;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
 
 const state = {
   token: localStorage.getItem("token") || "",
@@ -729,7 +758,7 @@ if ($("confirmClearChatBtn")) {
       await api("/api/admin/messages", { method: "DELETE" });
       $("clearChatModal").classList.add("hidden");
     } catch (e) {
-      alert("清空失败：" + e.message);
+      showToast("操作失败: " + e.message, "error");
     }
   };
 }
@@ -751,9 +780,9 @@ if ($("confirmClearFavsBtn")) {
     try {
       await api("/api/admin/favorites", { method: "DELETE" });
       $("clearFavsModal").classList.add("hidden");
-      alert("全员收藏记录已清空！");
+      showToast("全员收藏记录已清空！");
     } catch (e) {
-      alert("清空失败：" + e.message);
+      showToast("操作失败: " + e.message, "error");
     }
   };
 }
@@ -1036,7 +1065,7 @@ $("submitTodoBtn").onclick = async () => {
     $("boardModal").classList.add("hidden");
     await refreshTodos();
   } catch (e) {
-    alert("添加失败：" + e.message);
+    showToast("操作失败: " + e.message, "error");
   }
 };
 
@@ -1083,10 +1112,10 @@ document.addEventListener("click", (e) => {
 $("ctxCopy").onclick = () => {
   if (contextMenuTargetMsg && contextMenuTargetMsg.text) {
     navigator.clipboard.writeText(contextMenuTargetMsg.text).then(() => {
-      alert("文本已复制");
-    }).catch(e => alert("复制失败: " + e.message));
+      showToast("文本已复制");
+    }).catch(e => showToast("操作失败: " + e.message, "error");
   } else {
-    alert("该消息没有可复制的文本");
+    showToast("该消息没有可复制的文本", "error");
   }
 };
 
@@ -1094,9 +1123,9 @@ $("ctxFav").onclick = async () => {
   if (!contextMenuTargetId) return;
   try {
     await api("/api/favorites", { method: "POST", body: { messageId: contextMenuTargetId } });
-    alert("收藏成功！可以在顶部「我的收藏」中查看。");
+    showToast("收藏成功！可以在顶部「我的收藏」中查看。");
   } catch (e) {
-    alert("收藏失败: " + e.message);
+    showToast("收藏失败: " + e.message, "error");
   }
 };
 
@@ -1127,7 +1156,7 @@ $("cancelMultiSelectBtn").onclick = () => {
 
 $("confirmMultiSelectBtn").onclick = () => {
   if (selectedMessageIds.size === 0) {
-    alert("请至少选择一条消息");
+    showToast("请至少选择一条消息", "info");
     return;
   }
   $("collectionTitleModal").classList.remove("hidden");
@@ -1142,7 +1171,7 @@ $("cancelCollectionBtn").onclick = () => {
 $("saveCollectionBtn").onclick = async () => {
   const title = $("collectionTitleInput").value.trim();
   if (!title) {
-    alert("请输入合集标题");
+    showToast("请输入合集标题", "error");
     return;
   }
   try {
@@ -1153,11 +1182,11 @@ $("saveCollectionBtn").onclick = async () => {
         title: title
       } 
     });
-    alert("合集收藏成功！");
+    showToast("合集收藏成功！");
     $("collectionTitleModal").classList.add("hidden");
     $("cancelMultiSelectBtn").onclick(); // exit multi-select mode
   } catch (e) {
-    alert("合并收藏失败: " + e.message);
+    showToast("合并收藏失败: " + e.message, "error");
   }
 };
 
@@ -1181,7 +1210,7 @@ $("saveTodoBtn").onclick = async () => {
     currentEditTodoId = null;
     refreshTodos();
   } catch (e) {
-    alert("修改失败：" + e.message);
+    showToast("操作失败: " + e.message, "error");
   }
 };
 
@@ -1198,7 +1227,7 @@ $("confirmDeleteTodoBtn").onclick = async () => {
     currentDeleteTodoId = null;
     refreshTodos();
   } catch (e) {
-    alert("删除失败：" + e.message);
+    showToast("操作失败: " + e.message, "error");
   }
 };
 
