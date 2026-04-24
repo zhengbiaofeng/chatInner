@@ -1,6 +1,15 @@
 const $ = (id) => document.getElementById(id);
 const genId = () => Math.random().toString(36).substr(2, 9);
 
+// ===============================
+// Global State & Notifications
+// ===============================
+let isMuted = true;
+let unreadCount = 0;
+let titleBlinkInterval = null;
+let lastSoundTime = 0;
+const originalTitle = document.title;
+
 // Custom Toast Notification System
 function showToast(msg, type = "success") {
   // Remove existing toast if any
@@ -28,6 +37,53 @@ function showToast(msg, type = "success") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
+// Audio & Notification Helpers
+function playBeep() {
+  if (isMuted) return;
+  const now = Date.now();
+  if (now - lastSoundTime < 3000) return; // 3 seconds throttle
+  lastSoundTime = now;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) {
+    console.error("Audio play failed:", e);
+  }
+}
+
+function startTitleBlinking() {
+  if (titleBlinkInterval) clearInterval(titleBlinkInterval);
+  let toggle = false;
+  titleBlinkInterval = setInterval(() => {
+    document.title = toggle ? `【新消息】${originalTitle}` : `【${unreadCount}条未读】${originalTitle}`;
+    toggle = !toggle;
+  }, 800);
+}
+
+function stopTitleBlinking() {
+  if (titleBlinkInterval) {
+    clearInterval(titleBlinkInterval);
+    titleBlinkInterval = null;
+  }
+  unreadCount = 0;
+  document.title = originalTitle;
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    stopTitleBlinking();
+  }
+});
 
 const state = {
   token: localStorage.getItem("token") || "",
@@ -500,7 +556,14 @@ function connectSocket() {
   state.socket.on("connect_error", (err) => {
     setError("chatError", `连接失败：${err.message || err}`);
   });
-  state.socket.on("chat:message", (m) => addMessage(m));
+  state.socket.on("chat:message", (m) => {
+    addMessage(m);
+    if (document.hidden && (!state.user || m.userId !== state.user.id)) {
+      unreadCount++;
+      startTitleBlinking();
+      playBeep();
+    }
+  });
   state.socket.on("chat:cleared", () => {
     $("messages").innerHTML = "";
     const systemMsg = document.createElement("div");
@@ -915,6 +978,18 @@ function escapeHTML(str) {
 }
 
 // ==== Favorites ====
+$("soundToggleBtn").onclick = () => {
+  isMuted = !isMuted;
+  $("soundToggleBtn").innerHTML = isMuted ? "🔇 静音" : "🔊 声音开";
+  if (!isMuted) {
+    // 播放一声测试音效以解锁浏览器的 AudioContext
+    playBeep();
+    showToast("已开启新消息后台提示音");
+  } else {
+    showToast("已关闭提示音", "info");
+  }
+};
+
 $("favBtn").onclick = () => {
   $("favModal").classList.remove("hidden");
   loadFavorites();
