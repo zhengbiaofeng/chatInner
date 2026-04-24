@@ -1063,8 +1063,8 @@ function showContextMenu(e, msgObj) {
   menu.classList.remove("hidden");
   
   // Position
-  let x = e.pageX;
-  let y = e.pageY;
+  let x = e.clientX;
+  let y = e.clientY;
   // Make sure it doesn't go off screen
   if (x + menu.offsetWidth > window.innerWidth) x = window.innerWidth - menu.offsetWidth;
   if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight;
