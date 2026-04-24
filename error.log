@@ -64,3 +64,8 @@ Error: 不能删除最后一个管理员账号
     at /workspace/store.js:42:26
     at async /workspace/src/routes/api.js:168:5
 
+[2026-04-24T05:44:03.174Z] Express error
+Error: 已经收藏过了
+    at /workspace/src/routes/api.js:206:19
+    at /workspace/store.js:42:26
+
