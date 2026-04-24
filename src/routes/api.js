@@ -198,24 +198,48 @@ module.exports = function createApiRouter(store, config) {
   }));
 
   router.post("/favorites", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
-    const { messageId } = req.body || {};
+    const { messageId, messageIds, title } = req.body || {};
     let newFav;
     await store.update(async (db) => {
       if (!db.favorites) db.favorites = [];
-      if (db.favorites.some(f => f.userId === req.user.id && f.message.id === messageId)) {
-        const e = new Error("已经收藏过了"); e.statusCode = 400; throw e;
+      
+      if (messageId) {
+        // 单条收藏
+        if (db.favorites.some(f => f.userId === req.user.id && f.type === 'single' && f.message && f.message.id === messageId)) {
+          const e = new Error("已经收藏过了"); e.statusCode = 400; throw e;
+        }
+        const msg = db.messages.find(m => m.id === messageId);
+        if (!msg) {
+          const e = new Error("消息不存在或已被撤回"); e.statusCode = 404; throw e;
+        }
+        newFav = {
+          id: genId(),
+          userId: req.user.id,
+          type: 'single',
+          message: JSON.parse(JSON.stringify(msg)), // 深度拷贝快照
+          createdAt: Date.now()
+        };
+        db.favorites.push(newFav);
+      } else if (messageIds && Array.isArray(messageIds)) {
+        // 多条合集收藏
+        const msgs = db.messages.filter(m => messageIds.includes(m.id));
+        if (msgs.length === 0) {
+          const e = new Error("选中的消息不存在"); e.statusCode = 404; throw e;
+        }
+        // 按时间排序
+        msgs.sort((a, b) => a.createdAt - b.createdAt);
+        newFav = {
+          id: genId(),
+          userId: req.user.id,
+          type: 'collection',
+          title: title || "未命名合集",
+          messages: JSON.parse(JSON.stringify(msgs)),
+          createdAt: Date.now()
+        };
+        db.favorites.push(newFav);
+      } else {
+        const e = new Error("缺少参数"); e.statusCode = 400; throw e;
       }
-      const msg = db.messages.find(m => m.id === messageId);
-      if (!msg) {
-        const e = new Error("消息不存在或已被撤回"); e.statusCode = 404; throw e;
-      }
-      newFav = {
-        id: genId(),
-        userId: req.user.id,
-        message: JSON.parse(JSON.stringify(msg)), // 深度拷贝快照
-        createdAt: Date.now()
-      };
-      db.favorites.push(newFav);
       return db;
     });
     res.json({ favorite: newFav });
@@ -245,19 +269,38 @@ module.exports = function createApiRouter(store, config) {
     }
 
     favs.forEach(f => {
-      const m = f.message;
-      const mDate = new Date(m.createdAt).toLocaleString();
-      md += `> **[${m.username}]** ${mDate}\n>\n`;
-      if (m.text) {
-        const lines = m.text.split('\n').map(l => `> ${l}`).join('\n');
-        md += `${lines}\n>\n`;
-      }
-      if (m.attachments && m.attachments.length > 0) {
-        m.attachments.forEach(a => {
-          md += `> 📎 附件: [${a.name}](${baseUrl}${a.url}) (${Math.round(a.size/1024)} KB)\n>\n`;
+      if (!f.type || f.type === 'single') {
+        const m = f.message;
+        const mDate = new Date(m.createdAt).toLocaleString();
+        md += `> **[${m.username}]** ${mDate}\n>\n`;
+        if (m.text) {
+          const lines = m.text.split('\n').map(l => `> ${l}`).join('\n');
+          md += `${lines}\n>\n`;
+        }
+        if (m.attachments && m.attachments.length > 0) {
+          m.attachments.forEach(a => {
+            md += `> 📎 附件: [${a.name}](${baseUrl}${a.url}) (${Math.round(a.size/1024)} KB)\n>\n`;
+          });
+        }
+        md += `---\n\n`;
+      } else if (f.type === 'collection') {
+        md += `### 📁 合集：${f.title}\n\n`;
+        f.messages.forEach(m => {
+          const mDate = new Date(m.createdAt).toLocaleString();
+          md += `> **[${m.username}]** ${mDate}\n>\n`;
+          if (m.text) {
+            const lines = m.text.split('\n').map(l => `> ${l}`).join('\n');
+            md += `${lines}\n>\n`;
+          }
+          if (m.attachments && m.attachments.length > 0) {
+            m.attachments.forEach(a => {
+              md += `> 📎 附件: [${a.name}](${baseUrl}${a.url}) (${Math.round(a.size/1024)} KB)\n>\n`;
+            });
+          }
+          md += `>\n`; // space between messages in collection
         });
+        md += `---\n\n`;
       }
-      md += `---\n\n`;
     });
 
     res.setHeader("Content-Type", "text/markdown; charset=utf-8");

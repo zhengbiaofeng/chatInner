@@ -62,6 +62,21 @@
           </div>
         </div>
 
+        <!-- Modal for Collection Title -->
+        <div id="collectionTitleModal" class="modal hidden">
+          <div class="modal-content card" style="width: 360px; max-width: 90%;">
+            <h2 style="margin-bottom: 16px;">合集命名</h2>
+            <div class="row">
+              <label>为选中的聊天记录起个标题</label>
+              <input type="text" id="collectionTitleInput" placeholder="例如：关于Nginx配置的讨论" />
+            </div>
+            <div class="rowActions" style="margin-top: 24px; justify-content: flex-end; gap: 12px;">
+              <button id="cancelCollectionBtn" class="btn btn-secondary">取消</button>
+              <button id="saveCollectionBtn" class="btn">保存合并收藏</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Modal for Delete Chat Messages Confirm -->
         <div id="clearChatModal" class="modal hidden">
           <div class="modal-content card" style="width: 320px; text-align: center;">
@@ -234,6 +249,23 @@
               <div id="usersList" class="usersList"></div>
             </div>
             <div id="messages" class="messages"></div>
+
+            <!-- Multi-select Action Bar -->
+            <div id="multiSelectBar" class="multi-select-bar hidden">
+              <span id="multiSelectCount">已选择 0 条</span>
+              <div>
+                <button id="cancelMultiSelectBtn" class="btn btn-secondary" style="margin-right: 8px;">取消</button>
+                <button id="confirmMultiSelectBtn" class="btn">合并收藏</button>
+              </div>
+            </div>
+
+            <!-- Context Menu -->
+            <div id="contextMenu" class="context-menu hidden">
+              <div class="context-menu-item" id="ctxCopy">复制文本</div>
+              <div class="context-menu-item" id="ctxFav">收藏此条</div>
+              <div class="context-menu-item" id="ctxMultiSelect">多选 / 批量收藏</div>
+            </div>
+
             <div class="composer">
               <div class="composerBox">
                 <div id="pendingUploads" class="pending"></div>

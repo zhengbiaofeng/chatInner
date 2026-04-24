@@ -516,15 +516,58 @@ a:hover { text-decoration: underline; }
   gap: 6px;
 }
 
-.msg-actions {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 8px;
-  opacity: 0.2;
-  transition: opacity 0.2s ease;
+.multi-select-mode .msg-checkbox {
+  display: inline-block !important;
+  margin-right: 12px;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
 }
-.message:hover .msg-actions {
-  opacity: 1;
+.multi-select-mode .message {
+  cursor: pointer;
+  border-radius: 4px;
+}
+.multi-select-mode .message:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.context-menu {
+  position: absolute;
+  z-index: 10000;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  padding: 4px 0;
+  min-width: 120px;
+}
+.context-menu-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+.context-menu-item:hover {
+  background: #334155;
+}
+
+.multi-select-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+.chat-main {
+  position: relative;
 }
 .fav-item {
   background: rgba(255, 255, 255, 0.03);

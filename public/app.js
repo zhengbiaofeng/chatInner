@@ -267,35 +267,31 @@ function renderRichText(text, container) {
 function addMessage(m) {
   const box = $("messages");
   const el = document.createElement("div");
-  el.className = "msg";
-  
+  el.className = "msg message"; // add "message" class for multi-select selector if needed
+  el.dataset.id = m.id;
+
   if (state.user && m.userId === state.user.id) {
     el.classList.add("msg-me");
   } else {
     el.classList.add("msg-other");
   }
 
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "msg-checkbox hidden";
+  checkbox.value = m.id;
+  checkbox.onclick = (e) => {
+    e.stopPropagation();
+    if (checkbox.checked) selectedMessageIds.add(m.id);
+    else selectedMessageIds.delete(m.id);
+    updateMultiSelectUI();
+  };
+  el.appendChild(checkbox);
+
   const head = document.createElement("div");
   head.className = "msgHead";
   head.textContent = `${m.username} · ${fmtTime(m.createdAt)}`;
-
-  const actions = document.createElement("span");
-  actions.className = "msg-actions";
-  const starBtn = document.createElement("button");
-  starBtn.className = "iconBtn";
-  starBtn.innerHTML = `⭐`;
-  starBtn.title = "收藏此消息";
-  starBtn.style.fontSize = "12px";
-  starBtn.onclick = async () => {
-    try {
-      await api("/api/favorites", { method: "POST", body: { messageId: m.id } });
-      alert("收藏成功！可以在顶部「我的收藏」中查看。");
-    } catch (e) {
-      alert("收藏失败: " + e.message);
-    }
-  };
-  actions.appendChild(starBtn);
-  head.appendChild(actions);
+  el.appendChild(head);
 
   const body = document.createElement("div");
   body.className = "msgBody";
@@ -341,6 +337,23 @@ function addMessage(m) {
   el.appendChild(body);
   box.appendChild(el);
   box.scrollTop = box.scrollHeight;
+
+  // 添加右键菜单逻辑
+  el.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    if (isMultiSelectMode) return;
+    showContextMenu(e, m);
+  });
+
+  // 多选模式下点击消息体切换复选框
+  el.addEventListener("click", (e) => {
+    if (isMultiSelectMode && e.target !== checkbox) {
+      checkbox.checked = !checkbox.checked;
+      if (checkbox.checked) selectedMessageIds.add(m.id);
+      else selectedMessageIds.delete(m.id);
+      updateMultiSelectUI();
+    }
+  });
 }
 
 async function init() {
@@ -897,13 +910,11 @@ async function loadFavorites() {
       return;
     }
     res.favorites.forEach(f => {
-      const m = f.message;
       const item = document.createElement("div");
       item.className = "fav-item";
       
       const header = document.createElement("div");
       header.className = "fav-header";
-      header.innerHTML = `<span><b>${escapeHTML(m.username)}</b> · ${new Date(m.createdAt).toLocaleString()}</span>`;
       
       const delBtn = document.createElement("button");
       delBtn.className = "iconBtn";
@@ -914,22 +925,59 @@ async function loadFavorites() {
         await api(`/api/favorites/${f.id}`, { method: "DELETE" });
         loadFavorites();
       };
-      header.appendChild(delBtn);
 
       const content = document.createElement("div");
       content.className = "fav-content";
-      if (m.text) {
-        const t = document.createElement("div");
-        t.textContent = m.text;
-        content.appendChild(t);
-      }
-      if (m.attachments && m.attachments.length > 0) {
-        m.attachments.forEach(a => {
-          const att = document.createElement("div");
-          att.style.marginTop = "4px";
-          att.innerHTML = `📎 <a href="${a.url}" target="_blank" style="color:#38bdf8; text-decoration:none;">${escapeHTML(a.name)}</a> <span style="color:#64748b;font-size:12px;">(${Math.round(a.size/1024)}KB)</span>`;
-          content.appendChild(att);
+
+      if (!f.type || f.type === 'single') {
+        const m = f.message;
+        header.innerHTML = `<span><b>${escapeHTML(m.username)}</b> · ${new Date(m.createdAt).toLocaleString()}</span>`;
+        header.appendChild(delBtn);
+        
+        if (m.text) {
+          const t = document.createElement("div");
+          t.textContent = m.text;
+          content.appendChild(t);
+        }
+        if (m.attachments && m.attachments.length > 0) {
+          m.attachments.forEach(a => {
+            const att = document.createElement("div");
+            att.style.marginTop = "4px";
+            att.innerHTML = `📎 <a href="${a.url}" target="_blank" style="color:#38bdf8; text-decoration:none;">${escapeHTML(a.name)}</a> <span style="color:#64748b;font-size:12px;">(${Math.round(a.size/1024)}KB)</span>`;
+            content.appendChild(att);
+          });
+        }
+      } else if (f.type === 'collection') {
+        header.innerHTML = `<span style="color:#fcd34d;">📁 <b>合集：${escapeHTML(f.title)}</b> · ${new Date(f.createdAt).toLocaleString()}</span>`;
+        header.appendChild(delBtn);
+
+        const msgsContainer = document.createElement("div");
+        msgsContainer.style.background = "rgba(0,0,0,0.2)";
+        msgsContainer.style.padding = "8px";
+        msgsContainer.style.borderRadius = "4px";
+        msgsContainer.style.marginTop = "8px";
+
+        f.messages.forEach(m => {
+          const mBlock = document.createElement("div");
+          mBlock.style.marginBottom = "8px";
+          mBlock.innerHTML = `<div style="font-size:12px; color:#94a3b8; margin-bottom:2px;"><b>${escapeHTML(m.username)}</b> · ${new Date(m.createdAt).toLocaleTimeString()}</div>`;
+          
+          if (m.text) {
+            const t = document.createElement("div");
+            t.textContent = m.text;
+            mBlock.appendChild(t);
+          }
+          if (m.attachments && m.attachments.length > 0) {
+            m.attachments.forEach(a => {
+              const att = document.createElement("div");
+              att.style.marginTop = "2px";
+              att.innerHTML = `📎 <a href="${a.url}" target="_blank" style="color:#38bdf8; text-decoration:none;">${escapeHTML(a.name)}</a> <span style="color:#64748b;font-size:12px;">(${Math.round(a.size/1024)}KB)</span>`;
+              mBlock.appendChild(att);
+            });
+          }
+          msgsContainer.appendChild(mBlock);
         });
+        content.appendChild(msgsContainer);
       }
 
       item.appendChild(header);
@@ -996,6 +1044,120 @@ $("newTodoInput").onkeydown = (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     $("submitTodoBtn").click();
+  }
+};
+
+let isMultiSelectMode = false;
+let selectedMessageIds = new Set();
+let contextMenuTargetId = null;
+let contextMenuTargetMsg = null;
+
+function updateMultiSelectUI() {
+  $("multiSelectCount").textContent = `已选择 ${selectedMessageIds.size} 条`;
+}
+
+function showContextMenu(e, msgObj) {
+  contextMenuTargetId = msgObj.id;
+  contextMenuTargetMsg = msgObj;
+  const menu = $("contextMenu");
+  menu.classList.remove("hidden");
+  
+  // Position
+  let x = e.pageX;
+  let y = e.pageY;
+  // Make sure it doesn't go off screen
+  if (x + menu.offsetWidth > window.innerWidth) x = window.innerWidth - menu.offsetWidth;
+  if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight;
+  
+  menu.style.left = x + "px";
+  menu.style.top = y + "px";
+}
+
+document.addEventListener("click", (e) => {
+  if (!$("contextMenu").classList.contains("hidden")) {
+    $("contextMenu").classList.add("hidden");
+  }
+});
+
+// 右键菜单动作
+$("ctxCopy").onclick = () => {
+  if (contextMenuTargetMsg && contextMenuTargetMsg.text) {
+    navigator.clipboard.writeText(contextMenuTargetMsg.text).then(() => {
+      alert("文本已复制");
+    }).catch(e => alert("复制失败: " + e.message));
+  } else {
+    alert("该消息没有可复制的文本");
+  }
+};
+
+$("ctxFav").onclick = async () => {
+  if (!contextMenuTargetId) return;
+  try {
+    await api("/api/favorites", { method: "POST", body: { messageId: contextMenuTargetId } });
+    alert("收藏成功！可以在顶部「我的收藏」中查看。");
+  } catch (e) {
+    alert("收藏失败: " + e.message);
+  }
+};
+
+$("ctxMultiSelect").onclick = () => {
+  isMultiSelectMode = true;
+  selectedMessageIds.clear();
+  // 默认选中当前右键的消息
+  if (contextMenuTargetId) selectedMessageIds.add(contextMenuTargetId);
+  
+  $("messages").classList.add("multi-select-mode");
+  $("multiSelectBar").classList.remove("hidden");
+  
+  // 同步UI复选框状态
+  document.querySelectorAll('.msg-checkbox').forEach(cb => {
+    cb.checked = selectedMessageIds.has(cb.value);
+  });
+  updateMultiSelectUI();
+};
+
+// 批量收藏操作栏
+$("cancelMultiSelectBtn").onclick = () => {
+  isMultiSelectMode = false;
+  selectedMessageIds.clear();
+  $("messages").classList.remove("multi-select-mode");
+  $("multiSelectBar").classList.add("hidden");
+  document.querySelectorAll('.msg-checkbox').forEach(cb => cb.checked = false);
+};
+
+$("confirmMultiSelectBtn").onclick = () => {
+  if (selectedMessageIds.size === 0) {
+    alert("请至少选择一条消息");
+    return;
+  }
+  $("collectionTitleModal").classList.remove("hidden");
+  $("collectionTitleInput").value = "";
+  $("collectionTitleInput").focus();
+};
+
+$("cancelCollectionBtn").onclick = () => {
+  $("collectionTitleModal").classList.add("hidden");
+};
+
+$("saveCollectionBtn").onclick = async () => {
+  const title = $("collectionTitleInput").value.trim();
+  if (!title) {
+    alert("请输入合集标题");
+    return;
+  }
+  try {
+    await api("/api/favorites", { 
+      method: "POST", 
+      body: { 
+        messageIds: Array.from(selectedMessageIds),
+        title: title
+      } 
+    });
+    alert("合集收藏成功！");
+    $("collectionTitleModal").classList.add("hidden");
+    $("cancelMultiSelectBtn").onclick(); // exit multi-select mode
+  } catch (e) {
+    alert("合并收藏失败: " + e.message);
   }
 };
 
