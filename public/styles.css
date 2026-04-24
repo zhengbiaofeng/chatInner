@@ -517,12 +517,14 @@ a:hover { text-decoration: underline; }
 }
 
 .msg-actions {
-  display: none;
-  margin-left: 8px;
-}
-.message:hover .msg-actions {
   display: inline-flex;
   align-items: center;
+  margin-left: 8px;
+  opacity: 0.2;
+  transition: opacity 0.2s ease;
+}
+.message:hover .msg-actions {
+  opacity: 1;
 }
 .fav-item {
   background: rgba(255, 255, 255, 0.03);
