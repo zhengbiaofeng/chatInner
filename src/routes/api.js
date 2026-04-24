@@ -177,6 +177,94 @@ module.exports = function createApiRouter(store, config) {
     res.json({ ok: true });
   }));
 
+  // 管理员一键清空所有收藏记录
+  router.delete("/admin/favorites", requireAuth(jwtSecret), requireAdmin, asyncHandler(async (req, res) => {
+    await store.update(async (db) => {
+      db.favorites = [];
+      return db;
+    });
+    res.json({ ok: true });
+  }));
+
+  // =====================
+  // Favorites (个人收藏夹)
+  // =====================
+
+  router.get("/favorites", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const db = await store.read();
+    const favs = (db.favorites || []).filter(f => f.userId === req.user.id);
+    favs.sort((a, b) => b.createdAt - a.createdAt);
+    res.json({ favorites: favs });
+  }));
+
+  router.post("/favorites", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const { messageId } = req.body || {};
+    let newFav;
+    await store.update(async (db) => {
+      if (!db.favorites) db.favorites = [];
+      if (db.favorites.some(f => f.userId === req.user.id && f.message.id === messageId)) {
+        const e = new Error("已经收藏过了"); e.statusCode = 400; throw e;
+      }
+      const msg = db.messages.find(m => m.id === messageId);
+      if (!msg) {
+        const e = new Error("消息不存在或已被撤回"); e.statusCode = 404; throw e;
+      }
+      newFav = {
+        id: genId(),
+        userId: req.user.id,
+        message: JSON.parse(JSON.stringify(msg)), // 深度拷贝快照
+        createdAt: Date.now()
+      };
+      db.favorites.push(newFav);
+      return db;
+    });
+    res.json({ favorite: newFav });
+  }));
+
+  router.delete("/favorites/:id", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    await store.update(async (db) => {
+      if (!db.favorites) db.favorites = [];
+      db.favorites = db.favorites.filter(f => !(f.id === req.params.id && f.userId === req.user.id));
+      return db;
+    });
+    res.json({ ok: true });
+  }));
+
+  router.get("/favorites/export", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
+    const db = await store.read();
+    const favs = (db.favorites || []).filter(f => f.userId === req.user.id);
+    favs.sort((a, b) => b.createdAt - a.createdAt);
+
+    const host = req.headers.host || "localhost";
+    const protocol = req.protocol || "http";
+    const baseUrl = `${protocol}://${host}`;
+
+    let md = `# 我的精华收藏库\n导出时间：${new Date().toLocaleString()}\n\n---\n\n`;
+    if (favs.length === 0) {
+      md += "暂无收藏记录。\n";
+    }
+
+    favs.forEach(f => {
+      const m = f.message;
+      const mDate = new Date(m.createdAt).toLocaleString();
+      md += `> **[${m.username}]** ${mDate}\n>\n`;
+      if (m.text) {
+        const lines = m.text.split('\n').map(l => `> ${l}`).join('\n');
+        md += `${lines}\n>\n`;
+      }
+      if (m.attachments && m.attachments.length > 0) {
+        m.attachments.forEach(a => {
+          md += `> 📎 附件: [${a.name}](${baseUrl}${a.url}) (${Math.round(a.size/1024)} KB)\n>\n`;
+        });
+      }
+      md += `---\n\n`;
+    });
+
+    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="my-favorites.md"');
+    res.send(md);
+  }));
+
   // 管理员删除账号
   router.delete("/admin/users/:id", requireAuth(jwtSecret), requireAdmin, asyncHandler(async (req, res) => {
     const userId = String(req.params.id);

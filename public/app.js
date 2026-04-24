@@ -279,6 +279,24 @@ function addMessage(m) {
   head.className = "msgHead";
   head.textContent = `${m.username} · ${fmtTime(m.createdAt)}`;
 
+  const actions = document.createElement("span");
+  actions.className = "msg-actions";
+  const starBtn = document.createElement("button");
+  starBtn.className = "iconBtn";
+  starBtn.innerHTML = `⭐`;
+  starBtn.title = "收藏此消息";
+  starBtn.style.fontSize = "12px";
+  starBtn.onclick = async () => {
+    try {
+      await api("/api/favorites", { method: "POST", body: { messageId: m.id } });
+      alert("收藏成功！可以在顶部「我的收藏」中查看。");
+    } catch (e) {
+      alert("收藏失败: " + e.message);
+    }
+  };
+  actions.appendChild(starBtn);
+  head.appendChild(actions);
+
   const body = document.createElement("div");
   body.className = "msgBody";
   if (m.text) {
@@ -703,6 +721,30 @@ if ($("confirmClearChatBtn")) {
   };
 }
 
+if ($("clearFavsBtn")) {
+  $("clearFavsBtn").onclick = () => {
+    $("clearFavsModal").classList.remove("hidden");
+  };
+}
+
+if ($("cancelClearFavsBtn")) {
+  $("cancelClearFavsBtn").onclick = () => {
+    $("clearFavsModal").classList.add("hidden");
+  };
+}
+
+if ($("confirmClearFavsBtn")) {
+  $("confirmClearFavsBtn").onclick = async () => {
+    try {
+      await api("/api/admin/favorites", { method: "DELETE" });
+      $("clearFavsModal").classList.add("hidden");
+      alert("全员收藏记录已清空！");
+    } catch (e) {
+      alert("清空失败：" + e.message);
+    }
+  };
+}
+
 // Paste images directly from clipboard into pending uploads
 $("messageInput").addEventListener("paste", async (e) => {
   const items = e.clipboardData?.items;
@@ -818,6 +860,85 @@ function initEmojiPanel() {
     d.onclick = () => sendSticker(url);
     sWrap.appendChild(d);
   });
+}
+
+function escapeHTML(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ==== Favorites ====
+$("favBtn").onclick = () => {
+  $("favModal").classList.remove("hidden");
+  loadFavorites();
+};
+
+$("closeFavBtn").onclick = () => {
+  $("favModal").classList.add("hidden");
+};
+
+$("exportFavBtn").onclick = () => {
+  window.open("/api/favorites/export?token=" + encodeURIComponent(localStorage.getItem("token")), "_blank");
+};
+
+async function loadFavorites() {
+  const list = $("favList");
+  list.innerHTML = "加载中...";
+  try {
+    const res = await api("/api/favorites");
+    list.innerHTML = "";
+    if (!res.favorites || res.favorites.length === 0) {
+      list.innerHTML = "<div style='color:#94a3b8; text-align:center; margin-top:20px;'>暂无收藏记录</div>";
+      return;
+    }
+    res.favorites.forEach(f => {
+      const m = f.message;
+      const item = document.createElement("div");
+      item.className = "fav-item";
+      
+      const header = document.createElement("div");
+      header.className = "fav-header";
+      header.innerHTML = `<span><b>${escapeHTML(m.username)}</b> · ${new Date(m.createdAt).toLocaleString()}</span>`;
+      
+      const delBtn = document.createElement("button");
+      delBtn.className = "iconBtn";
+      delBtn.innerHTML = "❌";
+      delBtn.title = "取消收藏";
+      delBtn.style.padding = "2px";
+      delBtn.onclick = async () => {
+        await api(`/api/favorites/${f.id}`, { method: "DELETE" });
+        loadFavorites();
+      };
+      header.appendChild(delBtn);
+
+      const content = document.createElement("div");
+      content.className = "fav-content";
+      if (m.text) {
+        const t = document.createElement("div");
+        t.textContent = m.text;
+        content.appendChild(t);
+      }
+      if (m.attachments && m.attachments.length > 0) {
+        m.attachments.forEach(a => {
+          const att = document.createElement("div");
+          att.style.marginTop = "4px";
+          att.innerHTML = `📎 <a href="${a.url}" target="_blank" style="color:#38bdf8; text-decoration:none;">${escapeHTML(a.name)}</a> <span style="color:#64748b;font-size:12px;">(${Math.round(a.size/1024)}KB)</span>`;
+          content.appendChild(att);
+        });
+      }
+
+      item.appendChild(header);
+      item.appendChild(content);
+      list.appendChild(item);
+    });
+  } catch (e) {
+    list.innerHTML = `<div class="error">加载失败: ${e.message}</div>`;
+  }
 }
 
 // ==== Todos / Blackboard ====
