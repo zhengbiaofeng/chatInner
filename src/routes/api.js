@@ -203,7 +203,24 @@ module.exports = function createApiRouter(store, config) {
     await store.update(async (db) => {
       if (!db.favorites) db.favorites = [];
       
-      if (messageId) {
+      if (messageIds && Array.isArray(messageIds) && messageIds.length > 0) {
+        // 多条合集收藏
+        const msgs = db.messages.filter(m => messageIds.includes(m.id));
+        if (msgs.length === 0) {
+          const e = new Error("选中的消息不存在或已被撤回"); e.statusCode = 404; throw e;
+        }
+        // 按时间排序
+        msgs.sort((a, b) => a.createdAt - b.createdAt);
+        newFav = {
+          id: genId(),
+          userId: req.user.id,
+          type: 'collection',
+          title: title || "未命名合集",
+          messages: JSON.parse(JSON.stringify(msgs)),
+          createdAt: Date.now()
+        };
+        db.favorites.push(newFav);
+      } else if (messageId) {
         // 单条收藏
         if (db.favorites.some(f => f.userId === req.user.id && f.type === 'single' && f.message && f.message.id === messageId)) {
           const e = new Error("已经收藏过了"); e.statusCode = 400; throw e;
@@ -217,23 +234,6 @@ module.exports = function createApiRouter(store, config) {
           userId: req.user.id,
           type: 'single',
           message: JSON.parse(JSON.stringify(msg)), // 深度拷贝快照
-          createdAt: Date.now()
-        };
-        db.favorites.push(newFav);
-      } else if (messageIds && Array.isArray(messageIds)) {
-        // 多条合集收藏
-        const msgs = db.messages.filter(m => messageIds.includes(m.id));
-        if (msgs.length === 0) {
-          const e = new Error("选中的消息不存在"); e.statusCode = 404; throw e;
-        }
-        // 按时间排序
-        msgs.sort((a, b) => a.createdAt - b.createdAt);
-        newFav = {
-          id: genId(),
-          userId: req.user.id,
-          type: 'collection',
-          title: title || "未命名合集",
-          messages: JSON.parse(JSON.stringify(msgs)),
           createdAt: Date.now()
         };
         db.favorites.push(newFav);

@@ -25,6 +25,16 @@
       "sticker": "",
       "attachments": [],
       "createdAt": 1776962226055
+    },
+    {
+      "id": "0389e66513bc4f74834d37c71b7e0c32",
+      "room": "general",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "username": "admin",
+      "text": "33333",
+      "sticker": "",
+      "attachments": [],
+      "createdAt": 1777010512542
     }
   ],
   "attachments": [],
@@ -59,21 +69,5 @@
       "completedAt": null
     }
   ],
-  "favorites": [
-    {
-      "id": "f97ea5fa10b74622908a496e29ba6457",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "message": {
-        "id": "9b2ceca4428d4314b9cf51f15a91a460",
-        "room": "general",
-        "userId": "77b1023dbdc54740a8d54be885bcd924",
-        "username": "admin",
-        "text": "111",
-        "sticker": "",
-        "attachments": [],
-        "createdAt": 1776962226055
-      },
-      "createdAt": 1777009168642
-    }
-  ]
+  "favorites": []
 }

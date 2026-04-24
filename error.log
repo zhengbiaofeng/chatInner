@@ -69,3 +69,18 @@ Error: 已经收藏过了
     at /workspace/src/routes/api.js:206:19
     at /workspace/store.js:42:26
 
+[2026-04-24T06:00:53.349Z] Express error
+Error: 已经收藏过了
+    at /workspace/src/routes/api.js:206:19
+    at /workspace/store.js:42:26
+
+[2026-04-24T06:02:09.967Z] Express error
+Error: 消息不存在或已被撤回
+    at /workspace/src/routes/api.js:210:19
+    at /workspace/store.js:42:26
+
+[2026-04-24T06:02:20.196Z] Express error
+Error: 消息不存在或已被撤回
+    at /workspace/src/routes/api.js:210:19
+    at /workspace/store.js:42:26
+
