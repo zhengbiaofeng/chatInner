@@ -137,6 +137,45 @@
         }
       ],
       "createdAt": 1777012263322
+    },
+    {
+      "id": "1ed48df27a7649ebbf5d7027941fa4ff",
+      "userId": "77b1023dbdc54740a8d54be885bcd924",
+      "type": "collection",
+      "title": "测试",
+      "messages": [
+        {
+          "id": "9b2ceca4428d4314b9cf51f15a91a460",
+          "room": "general",
+          "userId": "77b1023dbdc54740a8d54be885bcd924",
+          "username": "admin",
+          "text": "111",
+          "sticker": "",
+          "attachments": [],
+          "createdAt": 1776962226055
+        },
+        {
+          "id": "0389e66513bc4f74834d37c71b7e0c32",
+          "room": "general",
+          "userId": "77b1023dbdc54740a8d54be885bcd924",
+          "username": "admin",
+          "text": "33333",
+          "sticker": "",
+          "attachments": [],
+          "createdAt": 1777010512542
+        },
+        {
+          "id": "9ec0dc335c3c4bcf8ae2977c59cac925",
+          "room": "general",
+          "userId": "77b1023dbdc54740a8d54be885bcd924",
+          "username": "admin",
+          "text": "测试消息1",
+          "sticker": "",
+          "attachments": [],
+          "createdAt": 1777012207113
+        }
+      ],
+      "createdAt": 1777012812621
     }
   ]
 }
