@@ -13,41 +13,45 @@
       "passwordHash": "$2a$10$E0cGfocH848g2payOkCMru2e9wsFrEycV9IdpD6J2s3mU2b.zBIVK",
       "role": "user",
       "createdAt": 1776945186030
+    },
+    {
+      "id": "7c326e35a1ef4a5f86a428d316b25f63",
+      "username": "ux8puz",
+      "passwordHash": "$2a$10$Qo0AOtdBHc5HvijvivC9n.FkQMaFl3AcPJcb45tE7cwim0d0qgKrC",
+      "role": "user",
+      "createdAt": 1777016429896
+    },
+    {
+      "id": "3d12b80ba18c46ea9268b1a2a29ce509",
+      "username": "up4uqx",
+      "passwordHash": "$2a$10$/NNHphm/cdE9K4s.goRqLOp.foCbaHeKSDXTXpjR3YST.YNr.SMrm",
+      "role": "user",
+      "createdAt": 1777016491270
     }
   ],
   "messages": [
     {
-      "id": "9b2ceca4428d4314b9cf51f15a91a460",
+      "id": "4c7c0efaa4a54f2c984e0a31e72707a8",
       "room": "general",
       "userId": "77b1023dbdc54740a8d54be885bcd924",
       "username": "admin",
-      "text": "111",
+      "text": "notify-smoke-1777017288129",
       "sticker": "",
       "attachments": [],
-      "createdAt": 1776962226055
-    },
-    {
-      "id": "0389e66513bc4f74834d37c71b7e0c32",
-      "room": "general",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "username": "admin",
-      "text": "33333",
-      "sticker": "",
-      "attachments": [],
-      "createdAt": 1777010512542
-    },
-    {
-      "id": "9ec0dc335c3c4bcf8ae2977c59cac925",
-      "room": "general",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "username": "admin",
-      "text": "测试消息1",
-      "sticker": "",
-      "attachments": [],
-      "createdAt": 1777012207113
+      "createdAt": 1777017288130
     }
   ],
-  "attachments": [],
+  "attachments": [
+    {
+      "id": "d247c4df5f9f4e8c9588706efcd5dead",
+      "originalName": "smoke.txt",
+      "storedName": "d247c4df5f9f4e8c9588706efcd5dead__smoke.txt",
+      "mime": "text/plain",
+      "size": 12,
+      "uploaderId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1777016491308
+    }
+  ],
   "todos": [
     {
       "id": "1a284b28830a44d0922f7a6d87092032",
@@ -79,103 +83,5 @@
       "completedAt": null
     }
   ],
-  "favorites": [
-    {
-      "id": "b22da74e56204636901b3aabfa815b86",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "type": "collection",
-      "title": "Fetch Test",
-      "messages": [
-        {
-          "id": "9b2ceca4428d4314b9cf51f15a91a460",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "111",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1776962226055
-        },
-        {
-          "id": "0389e66513bc4f74834d37c71b7e0c32",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "33333",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1777010512542
-        }
-      ],
-      "createdAt": 1777011308702
-    },
-    {
-      "id": "96e4a5eec80a4192bf20d623b96aebcc",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "type": "collection",
-      "title": "Fetch Test Collection",
-      "messages": [
-        {
-          "id": "0389e66513bc4f74834d37c71b7e0c32",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "33333",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1777010512542
-        },
-        {
-          "id": "9ec0dc335c3c4bcf8ae2977c59cac925",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "测试消息1",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1777012207113
-        }
-      ],
-      "createdAt": 1777012263322
-    },
-    {
-      "id": "1ed48df27a7649ebbf5d7027941fa4ff",
-      "userId": "77b1023dbdc54740a8d54be885bcd924",
-      "type": "collection",
-      "title": "测试",
-      "messages": [
-        {
-          "id": "9b2ceca4428d4314b9cf51f15a91a460",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "111",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1776962226055
-        },
-        {
-          "id": "0389e66513bc4f74834d37c71b7e0c32",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "33333",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1777010512542
-        },
-        {
-          "id": "9ec0dc335c3c4bcf8ae2977c59cac925",
-          "room": "general",
-          "userId": "77b1023dbdc54740a8d54be885bcd924",
-          "username": "admin",
-          "text": "测试消息1",
-          "sticker": "",
-          "attachments": [],
-          "createdAt": 1777012207113
-        }
-      ],
-      "createdAt": 1777012812621
-    }
-  ]
+  "favorites": []
 }
