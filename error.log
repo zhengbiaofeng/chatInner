@@ -84,3 +84,13 @@ Error: 消息不存在或已被撤回
     at /workspace/src/routes/api.js:210:19
     at /workspace/store.js:42:26
 
+[2026-04-24T06:10:21.573Z] Express error
+Error: 消息不存在或已被撤回
+    at /workspace/src/routes/api.js:210:19
+    at /workspace/store.js:42:26
+
+[2026-04-24T06:10:40.098Z] Express error
+Error: 消息不存在或已被撤回
+    at /workspace/src/routes/api.js:210:19
+    at /workspace/store.js:42:26
+

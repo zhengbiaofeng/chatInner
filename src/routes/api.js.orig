@@ -199,7 +199,6 @@ module.exports = function createApiRouter(store, config) {
 
   router.post("/favorites", requireAuth(jwtSecret), asyncHandler(async (req, res) => {
     const { messageId, messageIds, title } = req.body || {};
-    console.log("POST /favorites called with:", { messageId, messageIds, title });
     let newFav;
     await store.update(async (db) => {
       if (!db.favorites) db.favorites = [];
