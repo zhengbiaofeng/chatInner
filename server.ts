@@ -117,7 +117,9 @@ app.prepare().then(() => {
             text,
             sticker: validSticker ? sticker : '',
             attachments: atts,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            isRecalled: false,
+            readBy: [user.id] // Creator automatically reads their own message
           };
           db.messages.push(m);
           // Only keep 2000 messages total across all rooms to avoid unbounded growth
@@ -133,6 +135,66 @@ app.prepare().then(() => {
         if (ack) ack({ ok: true });
       } catch (e: any) {
         if (ack) ack({ ok: false, error: e.message || '发送失败' });
+      }
+    });
+
+    socket.on('chat:recall', async (payload, ack) => {
+      try {
+        const { messageId } = payload;
+        if (!messageId) throw new Error('Missing messageId');
+
+        const updatedMsg = await updateDb<ChatMessage>(async (db) => {
+          const m = db.messages.find(x => x.id === messageId);
+          if (!m) throw new Error('Message not found');
+
+          // Check permissions: only admin or the creator can recall
+          // Check time limit: 2 minutes (120000 ms) for normal users. Admins can recall anytime.
+          if (user.role !== 'admin') {
+            if (m.userId !== user.id) throw new Error('No permission to recall this message');
+            if (Date.now() - m.createdAt > 120000) throw new Error('Time limit exceeded (2 minutes)');
+          }
+
+          m.isRecalled = true;
+          m.text = '[操作员已销毁一条加密信息]';
+          m.attachments = [];
+          m.sticker = '';
+
+          return { db, result: m };
+        });
+
+        if (updatedMsg) {
+          io.to(updatedMsg.room).emit('chat:message:update', updatedMsg);
+        }
+        
+        if (ack) ack({ ok: true });
+      } catch (e: any) {
+        if (ack) ack({ ok: false, error: e.message || '撤回失败' });
+      }
+    });
+
+    socket.on('chat:read', async (payload) => {
+      try {
+        const { messageId } = payload;
+        if (!messageId) return;
+
+        const updatedMsg = await updateDb<ChatMessage>(async (db) => {
+          const m = db.messages.find(x => x.id === messageId);
+          if (!m) return { db };
+
+          if (!m.readBy) m.readBy = [];
+          if (!m.readBy.includes(user.id)) {
+            m.readBy.push(user.id);
+            return { db, result: m };
+          }
+          return { db };
+        });
+
+        if (updatedMsg) {
+          // Broadcast update so others see the read receipt increment
+          io.to(updatedMsg.room).emit('chat:message:update', updatedMsg);
+        }
+      } catch (e) {
+        console.error('Error marking message as read', e);
       }
     });
 

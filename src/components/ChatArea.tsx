@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
 import { ChatMessage, Attachment, UserPublic } from '@/types';
-import { Send, Paperclip, Loader2, Image as ImageIcon, FileText, Check, Star, Users } from 'lucide-react';
+import { Send, Paperclip, Loader2, Image as ImageIcon, FileText, Check, Star, Users, Trash, Eye } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -71,6 +71,11 @@ export default function ChatArea() {
       }
     });
 
+    socket.on('chat:message:update', (msg: ChatMessage) => {
+      if (msg.room !== activeChannel.id) return;
+      setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+    });
+
     socket.on('channel:users', (data: { roomId: string; users: UserPublic[] }) => {
       if (data.roomId === activeChannel.id) {
         setOnlineUsers(data.users);
@@ -93,6 +98,16 @@ export default function ChatArea() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Auto-read messages when visible
+  useEffect(() => {
+    if (!socket || !user) return;
+    const unreadMsgs = messages.filter(m => !m.readBy?.includes(user.id) && m.userId !== user.id && !m.isRecalled);
+    
+    unreadMsgs.forEach(m => {
+      socket?.emit('chat:read', { messageId: m.id });
+    });
+  }, [messages, user]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,6 +200,13 @@ export default function ChatArea() {
     }
   };
 
+  const handleRecall = (messageId: string) => {
+    if (!socket) return;
+    socket.emit('chat:recall', { messageId }, (res: any) => {
+      if (!res.ok) toast.error(res.error || 'Failed to recall');
+    });
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full bg-cyber-black relative overflow-hidden font-mono">
       {/* HUD Background Grid */}
@@ -275,16 +297,26 @@ export default function ChatArea() {
                 </div>
 
                 <div className="flex items-start gap-2 max-w-[80%] relative">
-                  {isCollecting && !isMe && (
+                  {isCollecting && !isMe && !msg.isRecalled && (
                     <button onClick={() => toggleSelect(msg.id)} className="mt-2 text-cyber-gray hover:text-cyber-cyan">
                       {isSelected ? <Check className="w-4 h-4 text-cyber-cyan" /> : <div className="w-4 h-4 border border-cyber-gray" />}
                     </button>
                   )}
 
-                  <div className={`p-3 relative ${isMe ? 'bg-cyber-dark/80 border border-cyber-cyan/30 text-cyber-cyan glow-border' : 'bg-cyber-gray/30 border border-transparent text-gray-300'}`}>
+                  <div className={`p-3 relative group/msg ${isMe ? 'bg-cyber-dark/80 border border-cyber-cyan/30 text-cyber-cyan glow-border' : 'bg-cyber-gray/30 border border-transparent text-gray-300'} ${msg.isRecalled ? 'opacity-50 italic' : ''}`}>
                     {/* Corner accents */}
                     <div className={`absolute top-0 left-0 w-1.5 h-1.5 border-t border-l ${isMe ? 'border-cyber-cyan' : 'border-cyber-gray'}`} />
                     <div className={`absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r ${isMe ? 'border-cyber-cyan' : 'border-cyber-gray'}`} />
+
+                    {/* Recall Button (Hover) */}
+                    {isMe && !msg.isRecalled && !isCollecting && (
+                      <button 
+                        onClick={() => handleRecall(msg.id)}
+                        className="absolute -top-3 -right-2 opacity-0 group-hover/msg:opacity-100 transition-opacity bg-cyber-pink/20 text-cyber-pink border border-cyber-pink px-1 text-[9px] hover:bg-cyber-pink hover:text-white"
+                      >
+                        RECALL
+                      </button>
+                    )}
 
                     {msg.text && (
                       <div className="prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-cyber-black prose-pre:border prose-pre:border-cyber-gray/30 text-sm">
@@ -292,7 +324,7 @@ export default function ChatArea() {
                       </div>
                     )}
                     
-                    {msg.attachments?.length > 0 && (
+                    {msg.attachments?.length > 0 && !msg.isRecalled && (
                       <div className="mt-2 space-y-2">
                         {msg.attachments.map(att => (
                           <a 
@@ -309,9 +341,17 @@ export default function ChatArea() {
                         ))}
                       </div>
                     )}
+                    
+                    {/* Read Receipt */}
+                    {isMe && !msg.isRecalled && (
+                      <div className="absolute -bottom-4 right-0 text-[9px] text-cyber-gray flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {msg.readBy ? msg.readBy.length : 1}
+                      </div>
+                    )}
                   </div>
 
-                  {isCollecting && isMe && (
+                  {isCollecting && isMe && !msg.isRecalled && (
                     <button onClick={() => toggleSelect(msg.id)} className="mt-2 text-cyber-gray hover:text-cyber-cyan">
                       {isSelected ? <Check className="w-4 h-4 text-cyber-cyan" /> : <div className="w-4 h-4 border border-cyber-gray" />}
                     </button>

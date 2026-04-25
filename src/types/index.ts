@@ -55,6 +55,8 @@ export interface ChatMessage {
   sticker: string;
   attachments: Attachment[];
   createdAt: number;
+  isRecalled?: boolean;
+  readBy?: string[]; // Array of user IDs who have read this message
 }
 
 export interface Todo {
@@ -143,6 +145,7 @@ export interface UpdatePasswordRequest {
 export interface ServerToClientEvents {
   'server:hello': (data: { user: UserPublic; room: string }) => void;
   'chat:message': (message: ChatMessage) => void;
+  'chat:message:update': (message: ChatMessage) => void;
   'collection_updated': () => void;
   'notification:new': (message: ChatMessage) => void;
   'channel:users': (data: { roomId: string; users: UserPublic[] }) => void;
@@ -154,6 +157,13 @@ export interface ClientToServerEvents {
   'chat:message': (
     payload: { roomId: string; text?: string; sticker?: string; attachmentIds?: string[] },
     callback?: (response: { ok: boolean; error?: string }) => void
+  ) => void;
+  'chat:recall': (
+    payload: { messageId: string },
+    callback?: (response: { ok: boolean; error?: string }) => void
+  ) => void;
+  'chat:read': (
+    payload: { messageId: string }
   ) => void;
 }
 
