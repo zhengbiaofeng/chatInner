@@ -1,53 +1,36 @@
-# 内网聊天室（Web 版，支持文件/图片上传）
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-适用场景：在公司内网 Windows 主机上跑一个轻量聊天室，4-5 人日常沟通使用。
+## Getting Started
 
-## 功能
+First, run the development server:
 
-- Web 端聊天室（默认一个房间：general）
-- 账号密码登录
-  - 首次启动需初始化创建第一个账号（该账号为管理员）
-  - 管理员可在页面内创建团队账号（推荐）
-  - 可选开启自助注册（见 .env）
-- WebSocket 实时消息（Socket.IO）
-- 文件/图片上传
-  - 图片可直接预览
-  - 其他文件点击下载
-- 内置常用 Emoji + 表情包（贴纸），一键发送
-- 消息持久化：保存到 `data/db.json`（默认保留最近 2000 条）
-
-## 运行方式 A：Windows 上直接运行（需要安装 Node.js）
-
-1. 安装 Node.js 18+（仅一次）
-2. 在本项目目录打开命令行，执行：
-   ```bat
-   npm install
-   run.bat
-   ```
-3. 浏览器访问：控制台会打印可访问的内网地址（默认端口 32123）
-
-> 可复制 `.env.example` 为 `.env`，修改端口/上传大小/数据目录等。
-
-## 运行方式 B：Windows 绿色运行（单文件 exe）
-
-在 Windows 上执行：
-
-```bat
-build-win-exe.bat
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-生成：`dist/intranet-chat.exe`  
-双击或命令行运行即可（会在同目录生成 `data/` 存放数据与上传文件）。
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 常用配置（.env）
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- `PORT`：监听端口（默认 32123；若占用会自动尝试 +1）
-- `DATA_DIR`：数据目录（默认 `./data`）
-- `MAX_UPLOAD_MB`：单文件最大上传大小（默认 500）
-- `ALLOW_SELF_REGISTER`：自助注册开关（1=开启；默认关闭）
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## 内网部署建议
+## Learn More
 
-- 如果需要用域名/HTTPS，可在前面加 Nginx/Apache 反向代理到 `http://127.0.0.1:3000`
-- 建议仅在内网可访问的网段开放端口，避免被外网访问
-"# chatInner" 
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
