@@ -66,6 +66,11 @@ export default function ChatArea() {
         return [...prev, msg];
       });
       
+      // Auto-scroll on new messages if we're near the bottom
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+      
       if (msg.userId !== user.id && document.visibilityState !== 'visible') {
         incrementUnread();
       }
@@ -74,6 +79,8 @@ export default function ChatArea() {
     socket.on('chat:message:update', (msg: ChatMessage) => {
       if (msg.room !== activeChannel.id) return;
       setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+      // Auto-scroll for stream updates
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     });
 
     socket.on('channel:users', (data: { roomId: string; users: UserPublic[] }) => {

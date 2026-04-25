@@ -6,6 +6,7 @@ import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketDa
 import { verifyToken } from './src/lib/auth';
 import { readDb, updateDb } from './src/lib/db';
 import crypto from 'crypto';
+import { streamChatWithQwen } from './src/lib/qwen';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
@@ -130,6 +131,83 @@ app.prepare().then(() => {
         if (newMsg) {
           io.to(roomId).emit('chat:message', newMsg);
           io.to(roomId).emit('notification:new', newMsg);
+          
+          // Check if NexusBot is mentioned
+          if (text.includes('@NexusBot')) {
+            const botUser = {
+              id: 'nexus-bot-00000000000000000000',
+              username: 'NexusBot',
+              role: 'admin',
+              createdAt: 0
+            };
+            
+            // Create a placeholder message for the bot
+            const botMsgId = genId();
+            let botMsgText = '';
+            
+            const initialBotMsg: ChatMessage = {
+              id: botMsgId,
+              room: roomId,
+              userId: botUser.id,
+              username: botUser.username,
+              text: '▊...', // Typing indicator
+              sticker: '',
+              attachments: [],
+              createdAt: Date.now(),
+              isRecalled: false,
+              readBy: [botUser.id]
+            };
+            
+            io.to(roomId).emit('chat:message', initialBotMsg);
+            
+            // Trigger Qwen Stream
+            const promptText = text.replace(/@NexusBot/g, '').trim();
+            const conversationHistory = [
+              { role: 'system', content: 'You are NexusBot, a highly advanced AI assistant inside a cyberpunk intranet chat system. Keep your answers concise, technical, and helpful.' },
+              { role: 'user', content: promptText || 'Hello' }
+            ];
+
+            let lastUpdate = Date.now();
+            let currentText = '';
+            
+            streamChatWithQwen(
+              conversationHistory,
+              (chunk) => {
+                currentText += chunk;
+                // Throttle socket updates to ~10 times per second
+                if (Date.now() - lastUpdate > 100) {
+                  io.to(roomId).emit('chat:message:update', {
+                    ...initialBotMsg,
+                    text: currentText + '▊'
+                  });
+                  lastUpdate = Date.now();
+                }
+              },
+              async (fullText) => {
+                // Finalize message in DB
+                const finalMsg = await updateDb<ChatMessage>(async (db) => {
+                  const m: ChatMessage = {
+                    ...initialBotMsg,
+                    text: fullText
+                  };
+                  db.messages.push(m);
+                  if (db.messages.length > 2000) db.messages = db.messages.slice(-2000);
+                  return { db, result: m };
+                });
+                
+                if (finalMsg) {
+                  io.to(roomId).emit('chat:message:update', finalMsg);
+                  io.to(roomId).emit('notification:new', finalMsg);
+                }
+              },
+              (err) => {
+                io.to(roomId).emit('chat:message:update', {
+                  ...initialBotMsg,
+                  text: '[SYSTEM_ERROR] Neural link disconnected. Check API configuration.'
+                });
+              }
+            );
+          }
         }
         
         if (ack) ack({ ok: true });

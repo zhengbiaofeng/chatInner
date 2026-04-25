@@ -10,8 +10,21 @@ export async function readDb(): Promise<DbSchema> {
   try {
     const data = await fs.readFile(DB_PATH, 'utf-8');
     const parsed = JSON.parse(data) as Partial<DbSchema>;
+    
+    // Ensure NexusBot exists
+    let users = parsed.users || [];
+    if (!users.some(u => u.username === 'NexusBot')) {
+      users.push({
+        id: 'nexus-bot-00000000000000000000',
+        username: 'NexusBot',
+        passwordHash: 'not_applicable',
+        role: 'admin',
+        createdAt: 0
+      });
+    }
+
     return {
-      users: parsed.users || [],
+      users,
       channels: parsed.channels || [
         { id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: Date.now() }
       ],
@@ -21,7 +34,22 @@ export async function readDb(): Promise<DbSchema> {
       favorites: parsed.favorites || []
     };
   } catch (e) {
-    return { users: [], channels: [{ id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: Date.now() }], messages: [], attachments: [], todos: [], favorites: [] };
+    return { 
+      users: [
+        {
+          id: 'nexus-bot-00000000000000000000',
+          username: 'NexusBot',
+          passwordHash: 'not_applicable',
+          role: 'admin',
+          createdAt: 0
+        }
+      ], 
+      channels: [{ id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: Date.now() }], 
+      messages: [], 
+      attachments: [], 
+      todos: [], 
+      favorites: [] 
+    };
   }
 }
 
