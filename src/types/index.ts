@@ -19,6 +19,14 @@ export interface UserPublic {
   createdAt: number;
 }
 
+export interface Channel {
+  id: string;
+  name: string;
+  type: 'public' | 'private';
+  creatorId: string;
+  createdAt: number;
+}
+
 export interface DbAttachment {
   id: string;
   originalName: string;
@@ -82,6 +90,7 @@ export type Favorite = FavoriteSingle | FavoriteCollection;
 
 export interface DbSchema {
   users: User[];
+  channels: Channel[];
   messages: ChatMessage[];
   attachments: DbAttachment[];
   todos: Todo[];
@@ -136,11 +145,14 @@ export interface ServerToClientEvents {
   'chat:message': (message: ChatMessage) => void;
   'collection_updated': () => void;
   'notification:new': (message: ChatMessage) => void;
+  'channel:users': (data: { roomId: string; users: UserPublic[] }) => void;
 }
 
 export interface ClientToServerEvents {
+  'channel:join': (roomId: string, callback?: (response: { ok: boolean; error?: string }) => void) => void;
+  'channel:leave': (roomId: string) => void;
   'chat:message': (
-    payload: { text?: string; sticker?: string; attachmentIds?: string[] },
+    payload: { roomId: string; text?: string; sticker?: string; attachmentIds?: string[] },
     callback?: (response: { ok: boolean; error?: string }) => void
   ) => void;
 }

@@ -34,6 +34,18 @@ app.prepare().then(() => {
     cors: { origin: '*' },
   });
 
+  // Track users per room: Map<roomId, Map<socketId, UserPublic>>
+  const roomUsers = new Map<string, Map<string, any>>();
+
+  const broadcastRoomUsers = (roomId: string) => {
+    const usersMap = roomUsers.get(roomId);
+    if (!usersMap) return;
+    // Deduplicate by user ID
+    const uniqueUsers = new Map<string, any>();
+    usersMap.forEach((u) => uniqueUsers.set(u.id, u));
+    io.to(roomId).emit('channel:users', { roomId, users: Array.from(uniqueUsers.values()) });
+  };
+
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) return next(new Error('Authentication error'));
@@ -49,11 +61,34 @@ app.prepare().then(() => {
     
     console.log(`🟢 Socket connected: ${user.username} (${socket.id})`);
     
+    // Auto-join general room on connection
     socket.join('general');
+    if (!roomUsers.has('general')) roomUsers.set('general', new Map());
+    roomUsers.get('general')!.set(socket.id, user);
+    
     socket.emit('server:hello', { user, room: 'general' });
+    broadcastRoomUsers('general');
+
+    socket.on('channel:join', (roomId, ack) => {
+      socket.join(roomId);
+      if (!roomUsers.has(roomId)) roomUsers.set(roomId, new Map());
+      roomUsers.get(roomId)!.set(socket.id, user);
+      broadcastRoomUsers(roomId);
+      if (ack) ack({ ok: true });
+    });
+
+    socket.on('channel:leave', (roomId) => {
+      socket.leave(roomId);
+      const roomMap = roomUsers.get(roomId);
+      if (roomMap) {
+        roomMap.delete(socket.id);
+        broadcastRoomUsers(roomId);
+      }
+    });
 
     socket.on('chat:message', async (payload, ack) => {
       try {
+        const roomId = payload.roomId || 'general';
         const text = String(payload?.text || '').trim();
         const attachmentIds = Array.isArray(payload?.attachmentIds) ? payload.attachmentIds : [];
         const sticker = typeof payload?.sticker === 'string' ? payload.sticker.trim() : '';
@@ -76,7 +111,7 @@ app.prepare().then(() => {
 
           const m: ChatMessage = {
             id: genId(),
-            room: 'general',
+            room: roomId,
             userId: user.id,
             username: user.username,
             text,
@@ -85,13 +120,14 @@ app.prepare().then(() => {
             createdAt: Date.now()
           };
           db.messages.push(m);
+          // Only keep 2000 messages total across all rooms to avoid unbounded growth
           if (db.messages.length > 2000) db.messages = db.messages.slice(-2000);
           return { db, result: m };
         });
 
         if (newMsg) {
-          io.to('general').emit('chat:message', newMsg);
-          io.to('general').emit('notification:new', newMsg);
+          io.to(roomId).emit('chat:message', newMsg);
+          io.to(roomId).emit('notification:new', newMsg);
         }
         
         if (ack) ack({ ok: true });
@@ -101,6 +137,12 @@ app.prepare().then(() => {
     });
 
     socket.on('disconnect', () => {
+      roomUsers.forEach((usersMap, roomId) => {
+        if (usersMap.has(socket.id)) {
+          usersMap.delete(socket.id);
+          broadcastRoomUsers(roomId);
+        }
+      });
       console.log(`🔴 Socket disconnected: ${user.username} (${socket.id})`);
     });
   });

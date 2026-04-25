@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Channel } from '@/types';
 
 type PanelType = 'none' | 'todos' | 'favorites';
 
@@ -9,8 +10,8 @@ interface UIState {
   unreadCount: number;
   incrementUnread: () => void;
   clearUnread: () => void;
-  activeChatTitle: string;
-  setActiveChatTitle: (title: string) => void;
+  activeChannel: Channel;
+  setActiveChannel: (channel: Channel) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -21,6 +22,6 @@ export const useUIStore = create<UIState>((set) => ({
   unreadCount: 0,
   incrementUnread: () => set((state) => ({ unreadCount: state.unreadCount + 1 })),
   clearUnread: () => set({ unreadCount: 0 }),
-  activeChatTitle: 'GENERAL CHAT_ROOM',
-  setActiveChatTitle: (title) => set({ activeChatTitle: title }),
+  activeChannel: { id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: 0 },
+  setActiveChannel: (channel) => set({ activeChannel: channel }),
 }));

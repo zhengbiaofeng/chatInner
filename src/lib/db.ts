@@ -12,13 +12,16 @@ export async function readDb(): Promise<DbSchema> {
     const parsed = JSON.parse(data) as Partial<DbSchema>;
     return {
       users: parsed.users || [],
+      channels: parsed.channels || [
+        { id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: Date.now() }
+      ],
       messages: parsed.messages || [],
       attachments: parsed.attachments || [],
       todos: parsed.todos || [],
       favorites: parsed.favorites || []
     };
   } catch (e) {
-    return { users: [], messages: [], attachments: [], todos: [], favorites: [] };
+    return { users: [], channels: [{ id: 'general', name: '总台 (GENERAL)', type: 'public', creatorId: 'system', createdAt: Date.now() }], messages: [], attachments: [], todos: [], favorites: [] };
   }
 }
 

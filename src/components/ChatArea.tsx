@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
-import { ChatMessage, Attachment } from '@/types';
-import { Send, Paperclip, Loader2, Image as ImageIcon, FileText, Check, Star } from 'lucide-react';
+import { ChatMessage, Attachment, UserPublic } from '@/types';
+import { Send, Paperclip, Loader2, Image as ImageIcon, FileText, Check, Star, Users } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,17 +15,35 @@ let socket: Socket | null = null;
 
 export default function ChatArea() {
   const { user, token } = useAuthStore();
-  const { incrementUnread, activeChatTitle } = useUIStore();
+  const { incrementUnread, activeChannel } = useUIStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<UserPublic[]>([]);
+  const [showOnline, setShowOnline] = useState(false);
   const [input, setInput] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [onlineCount, setOnlineCount] = useState(1);
   const [selectedMsgs, setSelectedMsgs] = useState<Set<string>>(new Set());
   const [isCollecting, setIsCollecting] = useState(false);
   const [collectionTitle, setCollectionTitle] = useState('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch initial messages when channel changes
+  useEffect(() => {
+    if (!token || !activeChannel.id) return;
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`/api/messages/${activeChannel.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data.messages);
+        }
+      } catch (e) {}
+    };
+    fetchMessages();
+  }, [activeChannel.id, token]);
 
   useEffect(() => {
     if (!token || !user) return;
@@ -36,11 +54,13 @@ export default function ChatArea() {
       transports: ['websocket', 'polling']
     });
 
-    socket.on('server:hello', (data) => {
-      // toast.success(`CONNECTED TO ${data.room.toUpperCase()}`);
+    socket.on('server:hello', () => {
+      // Join active channel
+      socket?.emit('channel:join', activeChannel.id);
     });
 
     socket.on('chat:message', (msg: ChatMessage) => {
+      if (msg.room !== activeChannel.id) return;
       setMessages(prev => {
         if (prev.some(m => m.id === msg.id)) return prev;
         return [...prev, msg];
@@ -51,10 +71,24 @@ export default function ChatArea() {
       }
     });
 
+    socket.on('channel:users', (data: { roomId: string; users: UserPublic[] }) => {
+      if (data.roomId === activeChannel.id) {
+        setOnlineUsers(data.users);
+      }
+    });
+
     return () => {
       if (socket) socket.disconnect();
     };
-  }, [token, user, incrementUnread]);
+  }, [token, user, activeChannel.id, incrementUnread]);
+
+  // Re-join channel when active channel changes
+  useEffect(() => {
+    if (socket && socket.connected) {
+      socket.emit('channel:leave', activeChannel.id); // Try to leave previous
+      socket.emit('channel:join', activeChannel.id);
+    }
+  }, [activeChannel.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,7 +98,7 @@ export default function ChatArea() {
     e.preventDefault();
     if (!input.trim() || !socket) return;
     
-    socket.emit('chat:message', { text: input }, (res: any) => {
+    socket.emit('chat:message', { roomId: activeChannel.id, text: input }, (res: any) => {
       if (!res.ok) toast.error(res.error || 'Failed to send message');
     });
     setInput('');
@@ -89,7 +123,7 @@ export default function ChatArea() {
 
       const attachmentIds = data.attachments.map((a: any) => a.id);
       if (socket) {
-        socket.emit('chat:message', { attachmentIds });
+        socket.emit('chat:message', { roomId: activeChannel.id, attachmentIds });
       }
       toast.success('FILES TRANSMITTED');
     } catch (err: any) {
@@ -157,15 +191,40 @@ export default function ChatArea() {
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(var(--color-cyber-cyan)_1px,transparent_1px),linear-gradient(90deg,var(--color-cyber-cyan)_1px,transparent_1px)] bg-[size:40px_40px] z-0"></div>
 
       {/* Top Info Bar */}
-      <div className="h-10 border-b border-cyber-cyan/20 bg-cyber-dark/80 flex items-center justify-between px-4 z-10 text-xs">
+      <div className="h-10 border-b border-cyber-cyan/20 bg-cyber-dark/80 flex items-center justify-between px-4 z-10 text-xs relative">
         <div className="flex items-center gap-3">
           <span className="text-cyber-cyan flex items-center gap-2">
             <div className="w-2 h-2 bg-cyber-cyan rounded-full animate-pulse shadow-[0_0_8px_var(--color-cyber-cyan)]" />
-            {activeChatTitle}
+            {activeChannel.name}
           </span>
           <span className="text-cyber-gray">|</span>
-          <span className="text-cyber-gray">ENCRYPTED P2P LINK</span>
+          <button 
+            onClick={() => setShowOnline(!showOnline)}
+            className="text-cyber-gray hover:text-white transition-colors flex items-center gap-1"
+          >
+            <Users className="w-3 h-3" /> {onlineUsers.length} ONLINE
+          </button>
         </div>
+        
+        {/* Online Users Dropdown */}
+        <AnimatePresence>
+          {showOnline && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-10 left-4 w-48 bg-cyber-black/95 border border-cyber-cyan/30 shadow-lg p-2 z-50 max-h-60 overflow-y-auto"
+            >
+              {onlineUsers.map(u => (
+                <div key={u.id} className="flex items-center gap-2 py-1 px-2 hover:bg-cyber-cyan/10">
+                  <div className="w-1.5 h-1.5 bg-cyber-green rounded-full shadow-[0_0_5px_var(--color-cyber-green)]" />
+                  <span className={u.id === user?.id ? 'text-cyber-cyan' : 'text-gray-300'}>{u.username}</span>
+                  {u.role === 'admin' && <span className="text-[9px] bg-cyber-purple/20 text-cyber-purple px-1 ml-auto">ADMIN</span>}
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         <div className="flex items-center gap-4">
           {isCollecting ? (

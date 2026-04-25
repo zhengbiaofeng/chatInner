@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
 import Header from '@/components/Header';
 import ChatArea from '@/components/ChatArea';
+import Sidebar from '@/components/Sidebar';
 import TodoPanel from '@/components/TodoPanel';
 import FavoritesPanel from '@/components/FavoritesPanel';
 import NotificationProvider from '@/components/NotificationProvider';
@@ -36,6 +37,7 @@ export default function Home() {
       <Header />
 
       <div className="flex-1 flex overflow-hidden relative z-10">
+        <Sidebar />
         {/* Main Chat Area */}
         <div className="flex-1 min-w-0 h-full relative transition-all duration-300 ease-in-out">
           <ChatArea />
