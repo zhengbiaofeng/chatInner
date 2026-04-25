@@ -21,7 +21,20 @@ async function smokeTest() {
   const token = loginData.token;
   console.log('✅ Login OK');
 
-  // 2. Create Todo
+  // 2. Test Channel Creation
+  const channelRes = await fetch(`${BASE_URL}/api/channels`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ name: 'smoke-channel' })
+  });
+  const channelData = await channelRes.json();
+  if (!channelData.channel) {
+    console.error('❌ Create Channel failed', channelData);
+    process.exit(1);
+  }
+  console.log('✅ Create Channel OK');
+
+  // 3. Create Todo
   const todoRes = await fetch(`${BASE_URL}/api/todos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -34,7 +47,7 @@ async function smokeTest() {
   }
   console.log('✅ Create Todo OK');
 
-  // 3. Complete Todo
+  // 4. Complete Todo
   const putRes = await fetch(`${BASE_URL}/api/todos/${todoData.todo.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -46,7 +59,7 @@ async function smokeTest() {
   }
   console.log('✅ Complete Todo OK');
 
-  // 4. Delete Todo
+  // 5. Delete Todo
   const delRes = await fetch(`${BASE_URL}/api/todos/${todoData.todo.id}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` }
@@ -57,7 +70,7 @@ async function smokeTest() {
   }
   console.log('✅ Delete Todo OK');
 
-  // 5. Check Favorites
+  // 6. Check Favorites
   const favRes = await fetch(`${BASE_URL}/api/favorites`, {
     headers: { 'Authorization': `Bearer ${token}` }
   });

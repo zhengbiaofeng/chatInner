@@ -27,6 +27,29 @@
       "passwordHash": "$2a$10$/NNHphm/cdE9K4s.goRqLOp.foCbaHeKSDXTXpjR3YST.YNr.SMrm",
       "role": "user",
       "createdAt": 1777016491270
+    },
+    {
+      "id": "nexus-bot-00000000000000000000",
+      "username": "NexusBot",
+      "passwordHash": "not_applicable",
+      "role": "admin",
+      "createdAt": 0
+    }
+  ],
+  "channels": [
+    {
+      "id": "general",
+      "name": "总台 (GENERAL)",
+      "type": "public",
+      "creatorId": "system",
+      "createdAt": 1777096062942
+    },
+    {
+      "id": "3fb5f62530c14c329d3c143aa100b6d4",
+      "name": "smoke-channel",
+      "type": "public",
+      "creatorId": "77b1023dbdc54740a8d54be885bcd924",
+      "createdAt": 1777096062942
     }
   ],
   "messages": [
