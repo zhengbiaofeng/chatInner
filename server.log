@@ -1,0 +1,5 @@
+>>> Attached Socket.IO to Next.js server <<<
+▲ Next.js 16.2.4
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+✓ Ready in 0ms
